@@ -5,11 +5,13 @@ name: Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
     tags: 
-      - type-id-v*
+      - 'type-id-v*'
   pull_request:
-    branches: [ "main" ]   
+    branches:
+      - main   
 
 jobs:
   build:
