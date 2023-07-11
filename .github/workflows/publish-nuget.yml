@@ -3,6 +3,8 @@ on:
     branches: ["main"]
     tags:
       - "type-id-v*"
+    paths:
+      - 'src/**'
 
 jobs:
   build:
