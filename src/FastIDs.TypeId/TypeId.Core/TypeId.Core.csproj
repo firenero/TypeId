@@ -6,6 +6,13 @@
         <Nullable>enable</Nullable>
         <RootNamespace>FastIDs.TypeId</RootNamespace>
         <AssemblyName>TypeId.Core</AssemblyName>
+
+        <PackageId>FastIDs.TypeId</PackageId>
+        <Title>High-performance TypeId implementation</Title>
+        <Description>High-performance TypeId .NET library</Description>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageTags>dotnet,c#</PackageTags>
+        <RepositoryUrl>https://github.com/firenero/TypeId</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
