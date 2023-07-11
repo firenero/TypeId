@@ -4,11 +4,28 @@ using UUIDNext;
 
 namespace FastIDs.TypeId;
 
+/// <summary>
+/// Type-safe extension of UUIDv7.
+/// </summary>
+/// <remarks>
+/// Example TypeId format:
+/// <code>
+///   user_2x4y6z8a0b1c2d3e4f5g6h7j8k
+///   └──┘ └────────────────────────┘
+///   type    uuid suffix (base32)
+/// </code>
+/// </remarks>
 [StructLayout(LayoutKind.Auto)]
 public readonly struct TypeId : IEquatable<TypeId>
 {
+    /// <summary>
+    /// Type of the ID. Can be empty.
+    /// </summary>
     public string Type { get; }
     
+    /// <summary>
+    /// UUIDv7 ID part of the TypeId.
+    /// </summary>
     public Guid Id { get; }
 
     private TypeId(string type, Guid id)
@@ -17,8 +34,24 @@ public readonly struct TypeId : IEquatable<TypeId>
         Id = id;
     }
 
+    /// <summary>
+    /// Generates new TypeId with the specified type and random UUIDv7.
+    /// </summary>
+    /// <param name="type">Type of the ID. Can be empty.</param>
+    /// <returns>New TypeId with the specified type and random UUIDv7.</returns>
+    /// <exception cref="FormatException">Thrown when type is not valid. Type must contain only lowercase ASCII letters and can be at most 63 characters long.</exception>
     public static TypeId New(string type) => FromUuidV7(type, Uuid.NewSequential());
 
+    /// <summary>
+    /// Generates new TypeId with the specified type and UUIDv7.
+    /// </summary>
+    /// <param name="type">Type of the ID. Can be empty.</param>
+    /// <param name="uuidV7">UUIDv7 ID part of the TypeId.</param>
+    /// <returns>New TypeId with the specified type and UUIDv7.</returns>
+    /// <exception cref="FormatException">Thrown when type is not valid. Type must contain only lowercase ASCII letters and can be at most 63 characters long.</exception>
+    /// <remarks>
+    /// <paramref name="uuidV7"/> must be a valid UUIDv7. <see cref="Guid.NewGuid"/> method generates UUIDv4 which is not valid UUIDv7.
+    /// </remarks>
     public static TypeId FromUuidV7(string type, Guid uuidV7)
     {
         if (type.Length > TypeIdConstants.MaxTypeLength)
@@ -29,6 +62,10 @@ public readonly struct TypeId : IEquatable<TypeId>
         return new TypeId(type, uuidV7);
     }
 
+    /// <summary>
+    /// Returns ID part of the TypeId as an encoded string.
+    /// </summary>
+    /// <returns>ID part of the TypeId as an encoded string.</returns>
     public string GetSuffix()
     {
         Span<byte> idBytes = stackalloc byte[16];
@@ -39,8 +76,26 @@ public readonly struct TypeId : IEquatable<TypeId>
         return Base32.Encode(idBytes);
     }
 
+    /// <summary>
+    /// Returns encoded string representation of the TypeId.
+    /// </summary>
+    /// <returns>Encoded string representation of the TypeId.</returns>
     public override string ToString() => Type.Length > 0 ? $"{Type}_{GetSuffix()}" : GetSuffix();
 
+    /// <summary>
+    /// Parses the specified string into a TypeId.
+    /// </summary>
+    /// <param name="input">String representation of the TypeId.</param>
+    /// <returns>TypeId instance.</returns>
+    /// <exception cref="FormatException">Thrown when the specified string is not a valid TypeId.</exception>
+    /// <remarks>
+    /// Example TypeId format:
+    /// <code>
+    ///   user_2x4y6z8a0b1c2d3e4f5g6h7j8k
+    ///   └──┘ └────────────────────────┘
+    ///   type    uuid suffix (base32)
+    /// </code>
+    /// </remarks>
     public static TypeId Parse(string input)
     {
         var separatorIdx = input.IndexOf('_');
@@ -68,6 +123,20 @@ public readonly struct TypeId : IEquatable<TypeId>
         return new TypeId(typeSpan.ToString(), new Guid(decoded));
     }
 
+    /// <summary>
+    /// Tries to parse the specified string into a TypeId.
+    /// </summary>
+    /// <param name="input">String representation of the TypeId.</param>
+    /// <param name="result">Contains parsed TypeId if the method returns true.</param>
+    /// <returns>True if the specified string was successfully parsed into a TypeId; otherwise, false.</returns>
+    /// <remarks>
+    /// Example TypeId format:
+    /// <code>
+    ///   user_2x4y6z8a0b1c2d3e4f5g6h7j8k
+    ///   └──┘ └────────────────────────┘
+    ///   type    uuid suffix (base32)
+    /// </code>
+    /// </remarks>
     public static bool TryParse(string input, out TypeId result)
     {
         var separatorIdx = input.IndexOf('_');
@@ -92,10 +161,22 @@ public readonly struct TypeId : IEquatable<TypeId>
         return true;
     }
 
+    /// <summary>
+    /// Returns a value indicating whether this instance and a specified TypeId object represent the same value.
+    /// </summary>
+    /// <param name="other">The TypeId to compare to this instance.</param>
+    /// <returns>True if <paramref name="other"/> is equal to this instance; otherwise, false.</returns>
     public bool Equals(TypeId other) => Type == other.Type && Id.Equals(other.Id);
 
+    /// <summary>
+    /// Returns a value indicating whether this instance and a specified object represent the same value.
+    /// </summary>
+    /// <param name="obj">The object to compare with this instance.</param>
+    /// <returns>True if <paramref name="obj"/> is a TypeId and equal to this instance; otherwise, false.</returns>
     public override bool Equals(object? obj) => obj is TypeId other && Equals(other);
 
+    /// <summary>Returns the hash code for this instance.</summary>
+    /// <returns>A 32-bit signed integer hash code.</returns>
     public override int GetHashCode() => HashCode.Combine(Type, Id);
 
     public static bool operator ==(TypeId left, TypeId right) => left.Equals(right);
