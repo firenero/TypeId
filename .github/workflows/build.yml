@@ -5,18 +5,17 @@ name: Build
 
 on:
   push:
-    branches: [ "main" ]
-    paths:
-      - 'src/**'    
+    branches: [ "main" ] 
   pull_request:
     branches: [ "main" ]
-    paths:
-      - 'src/**'   
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src/FastIDs.TypeId
 
     steps:
     - uses: actions/checkout@v3
