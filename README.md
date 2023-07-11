@@ -1,5 +1,7 @@
 # TypeId
 
+[![NuGet Version](https://img.shields.io/nuget/v/FastIDs.TypeId)](https://www.nuget.org/packages/FastIDs.TypeId)
+
 High-performance C# implementation of [TypeId](https://github.com/jetpack-io/typeid/).
 
 Here's an example of a TypeID of type user:
@@ -8,6 +10,10 @@ Here's an example of a TypeID of type user:
   └──┘ └────────────────────────┘
   type    uuid suffix (base32)
 ```
+
+## Installation
+
+Install from NuGet: https://www.nuget.org/packages/FastIDs.TypeId
 
 ## Usage
 
