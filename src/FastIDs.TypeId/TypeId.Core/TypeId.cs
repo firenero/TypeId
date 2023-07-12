@@ -40,7 +40,23 @@ public readonly struct TypeId : IEquatable<TypeId>
     /// <param name="type">Type of the ID. Can be empty.</param>
     /// <returns>New TypeId with the specified type and random UUIDv7.</returns>
     /// <exception cref="FormatException">Thrown when type is not valid. Type must contain only lowercase ASCII letters and can be at most 63 characters long.</exception>
+    /// <remarks>
+    /// This method validates the type. If you are sure that type is valid use <see cref="New(string, bool)"/> to skip type validation.
+    /// </remarks>
     public static TypeId New(string type) => FromUuidV7(type, Uuid.NewSequential());
+    
+    /// <summary>
+    /// Generates new TypeId with the specified type and random UUIDv7. If <paramref name="validateType"/> is false, type is not validated.
+    /// </summary>
+    /// <param name="type">Type of the ID. Can be empty.</param>
+    /// <param name="validateType">If true, type is validated. If false, type is not validated.</param>
+    /// <returns>New TypeId with the specified type and random UUIDv7.</returns>
+    /// <exception cref="FormatException">Thrown when <paramref name="validateType"/> is set to true and <paramref name="type"/> is not valid. Type must contain only lowercase ASCII letters and can be at most 63 characters long.</exception>
+    /// <remarks>
+    /// Use this method with <paramref name="validateType"/> set to false when you are sure that <paramref name="type"/> is valid.
+    /// This method is a bit faster than <see cref="New(string)"/> (especially for longer types) because it skips type validation.
+    /// </remarks>
+    public static TypeId New(string type, bool validateType) => validateType ? New(type) : new TypeId(type, Uuid.NewSequential());
 
     /// <summary>
     /// Generates new TypeId with the specified type and UUIDv7.
@@ -51,6 +67,8 @@ public readonly struct TypeId : IEquatable<TypeId>
     /// <exception cref="FormatException">Thrown when type is not valid. Type must contain only lowercase ASCII letters and can be at most 63 characters long.</exception>
     /// <remarks>
     /// <paramref name="uuidV7"/> must be a valid UUIDv7. <see cref="Guid.NewGuid"/> method generates UUIDv4 which is not valid UUIDv7.
+    /// <br/><br/>
+    /// This method validates the type. If you are sure that type is valid use <see cref="New(string, bool)"/> to skip type validation.
     /// </remarks>
     public static TypeId FromUuidV7(string type, Guid uuidV7)
     {
@@ -61,6 +79,24 @@ public readonly struct TypeId : IEquatable<TypeId>
 
         return new TypeId(type, uuidV7);
     }
+
+    /// <summary>
+    /// Generates new TypeId with the specified type and UUIDv7. If <paramref name="validateType"/> is false, type is not validated.
+    /// </summary>
+    /// <param name="type">Type of the ID. Can be empty.</param>
+    /// <param name="uuidV7">UUIDv7 ID part of the TypeId.</param>
+    /// <param name="validateType">If true, type is validated. If false, type is not validated.</param>
+    /// <returns>New TypeId with the specified type and UUIDv7.</returns>
+    /// <exception cref="FormatException">Thrown when <paramref name="validateType"/> is set to true and <paramref name="type"/> is not valid. Type must contain only lowercase ASCII letters and can be at most 63 characters long.</exception>
+    /// <remarks>
+    /// <paramref name="uuidV7"/> must be a valid UUIDv7. <see cref="Guid.NewGuid"/> method generates UUIDv4 which is not valid UUIDv7.
+    /// <br/><br/>
+    /// Use this method with <paramref name="validateType"/> set to false when you are sure that <paramref name="type"/> is valid.
+    /// This method is a bit faster than <see cref="New(string)"/> (especially for longer types) because it skips type validation.
+    /// </remarks>
+    public static TypeId FromUuidV7(string type, Guid uuidV7, bool validateType) => validateType
+        ? FromUuidV7(type, uuidV7)
+        : new TypeId(type, uuidV7);
 
     /// <summary>
     /// Returns ID part of the TypeId as an encoded string.
