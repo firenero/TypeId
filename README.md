@@ -36,6 +36,16 @@ Guid uuidV7 = new Guid("01890a5d-ac96-774b-bcce-b302099a8057");
 var typeId = TypeId.FromUuidV7("prefix", uuidV7);
 ```
 
+Both `TypeId.New(prefix)` and `TypeId.FromUuidV7(prefix, guid)` validate provided prefix. 
+You can skip this validation by using overloads with `bool validateType` parameter set to `false`.
+The best case to do so is when you're 100% sure your prefix is correct and you want to squeeze extra bits of performance.
+```csharp
+var typeId = TypeId.New("prefix", false) // skips validation and creates a valid TypeId instance.
+
+var invalidTypeId = TypeId.New("123", false) // doesn't throw FormatException despite invalid type provided
+var shouldThrowId = TypeId.New("123") // throws FormatException
+```
+
 ### Serialization to string
 
 Get string representation of TypeId:
