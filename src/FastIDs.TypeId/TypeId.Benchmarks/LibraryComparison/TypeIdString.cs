@@ -4,8 +4,9 @@ using BenchmarkDotNet.Attributes;
 namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 
 [MemoryDiagnoser]
-// [MarkdownExporter]
+[MarkdownExporter]
 [MarkdownExporterAttribute.GitHub]
+[MarkdownExporterAttribute.Default]
 public class TypeIdString
 {
     [Params(1_000_000)]
@@ -16,7 +17,7 @@ public class TypeIdString
 
     private TypeId[] _fastIdTypeIds;
     private TcKs.TypeId.TypeId[] _tcKsTypeIds;
-    private global::TypeId.TypeId[] _evgregTypeIds;
+    private global::TypeId.TypeId[] _cbuctokTypeIds;
 
     [GlobalSetup]
     public void Setup()
@@ -32,14 +33,14 @@ public class TypeIdString
         
         _fastIdTypeIds = new TypeId[Iterations];
         _tcKsTypeIds = new TcKs.TypeId.TypeId[Iterations];
-        _evgregTypeIds = new global::TypeId.TypeId[Iterations];
+        _cbuctokTypeIds = new global::TypeId.TypeId[Iterations];
         for (var i = 0; i < Iterations; i++)
         {
             var typeId = TypeId.New(prefix);
             var typeIdString = typeId.ToString();
             _fastIdTypeIds[i] = typeId;
             _tcKsTypeIds[i] = TcKs.TypeId.TypeId.Parse(typeIdString);
-            _evgregTypeIds[i] = global::TypeId.TypeId.Parse(typeIdString);
+            _cbuctokTypeIds[i] = global::TypeId.TypeId.Parse(typeIdString);
         }
     }
     
@@ -68,13 +69,13 @@ public class TypeIdString
     }
 
     [Benchmark]
-    public string EvgregBenchmark()
+    public string CbuctokBenchmark()
     {
         var result = "";
 
         for (var i = 0; i < Iterations; i++)
         {
-            result = _evgregTypeIds[i].ToString();
+            result = _cbuctokTypeIds[i].ToString();
         }
 
         return result;

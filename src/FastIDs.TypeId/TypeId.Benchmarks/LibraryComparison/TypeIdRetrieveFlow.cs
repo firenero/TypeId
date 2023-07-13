@@ -4,8 +4,9 @@ using BenchmarkDotNet.Attributes;
 namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 
 [MemoryDiagnoser]
-// [MarkdownExporter]
+[MarkdownExporter]
 [MarkdownExporterAttribute.GitHub]
+[MarkdownExporterAttribute.Default]
 public class TypeIdRetrieveFlow
 {
     [Params(1_000_000)]
@@ -73,7 +74,7 @@ public class TypeIdRetrieveFlow
     }
 
     [Benchmark]
-    public string EvgregBenchmark()
+    public string CbuctokBenchmark()
     {
         var result = "";
         foreach (var str in _typeIdStrings)

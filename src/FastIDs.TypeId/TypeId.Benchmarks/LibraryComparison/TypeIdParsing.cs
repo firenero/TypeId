@@ -4,8 +4,9 @@ using BenchmarkDotNet.Attributes;
 namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 
 [MemoryDiagnoser]
-// [MarkdownExporter]
+[MarkdownExporter]
 [MarkdownExporterAttribute.GitHub]
+[MarkdownExporterAttribute.Default]
 public class TypeIdParsing
 {
     [Params(1_000_000)]
@@ -84,7 +85,7 @@ public class TypeIdParsing
     }
 
     [Benchmark]
-    public global::TypeId.TypeId EvgregParse()
+    public global::TypeId.TypeId CbuctokParse()
     {
         global::TypeId.TypeId typeId = default;
 
@@ -97,7 +98,7 @@ public class TypeIdParsing
     }
     
     [Benchmark]
-    public global::TypeId.TypeId EvgregTryParse()
+    public global::TypeId.TypeId CbuctokTryParse()
     {
         global::TypeId.TypeId typeId = default;
 
