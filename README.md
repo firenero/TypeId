@@ -15,7 +15,19 @@ Here's an example of a TypeID of type user:
 
 Install from NuGet: https://www.nuget.org/packages/FastIDs.TypeId
 
+## Benchmarks
+
+This implementation is comparable or faster (sometimes 3x faster) in all common scenarios than other .NET implementations. 
+
+See [Benchmarks wiki](https://github.com/firenero/TypeId/wiki/Benchmarks) for more details.
+
 ## Usage
+
+### Import
+
+```csharp
+using FastIDs.TypeId;
+```
 
 ### Creating a TypeId
 
