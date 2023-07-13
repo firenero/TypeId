@@ -11,15 +11,32 @@ Here's an example of a TypeID of type user:
   type    uuid suffix (base32)
 ```
 
+## Why another library?
+
+This implementation is comparable or faster (sometimes 3x faster) in all common scenarios than other .NET implementations. 
+It also allocates up to 5x less memory, reducing GC pressure.
+
+See the [Benchmarks wiki](https://github.com/firenero/TypeId/wiki/Benchmarks) for more details.
+
+### Why should you care?
+
+You may think that generating, parsing, or serializing a single TypeId is very fast regardless of the implementation. 
+To some degree, that's true. But small inefficiencies accumulate quickly, and they are very hard to spot in a large system. 
+Most likely, there are millions of IDs parsed and serialized across your whole application daily. 
+There is no single place with "slow" performance to spot in the profiler, so it's very hard to notice these inefficiencies.
+
+GC is another important factor.
+If every small library generates tons of short-lived objects for no reason, the GC will trigger much more frequently, impacting your whole application. 
+The tricky part? There is nothing you can do about it because the memory is allocated inside 3rd party code.
+
+There is no reason to use inefficient building blocks in your application. 
+With this library, you get the same high-level, easy-to-use API. 
+You don't have to deal with "weird" performance-oriented approaches. 
+However, I plan to expose additional performance-oriented APIs in the near future for those who need them.
+
 ## Installation
 
 Install from NuGet: https://www.nuget.org/packages/FastIDs.TypeId
-
-## Benchmarks
-
-This implementation is comparable or faster (sometimes 3x faster) in all common scenarios than other .NET implementations. 
-
-See [Benchmarks wiki](https://github.com/firenero/TypeId/wiki/Benchmarks) for more details.
 
 ## Usage
 
