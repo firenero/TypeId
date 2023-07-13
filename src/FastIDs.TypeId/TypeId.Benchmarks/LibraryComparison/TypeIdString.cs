@@ -6,10 +6,30 @@ namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 [MarkdownExporter]
 public class TypeIdString
 {
-    [Params(10, 1000, 1_000_000, 1_000_000_000)]
+    [Params(10_000_000)]
     public int Iterations;
     
     private const string Prefix = "prefix";
+
+    private TypeId[] _fastIdTypeIds;
+    private TcKs.TypeId.TypeId[] _tcKsTypeIds;
+    private global::TypeId.TypeId[] _evgregTypeIds;
+
+    [GlobalSetup]
+    public void Setup()
+    {
+        _fastIdTypeIds = new TypeId[Iterations];
+        _tcKsTypeIds = new TcKs.TypeId.TypeId[Iterations];
+        _evgregTypeIds = new global::TypeId.TypeId[Iterations];
+        for (var i = 0; i < Iterations; i++)
+        {
+            var typeId = TypeId.New(Prefix);
+            var typeIdString = typeId.ToString();
+            _fastIdTypeIds[i] = typeId;
+            _tcKsTypeIds[i] = TcKs.TypeId.TypeId.Parse(typeIdString);
+            _evgregTypeIds[i] = global::TypeId.TypeId.Parse(typeIdString);
+        }
+    }
     
     [Benchmark(Baseline = true)]
     public string FastIdsBenchmark()
@@ -17,21 +37,7 @@ public class TypeIdString
         var result = "";
         for (var i = 0; i < Iterations; i++)
         {
-            var typeId = TypeId.New(Prefix);
-            result = typeId.ToString();
-        }
-
-        return result;
-    }
-    
-    [Benchmark]
-    public string FastIdsUnsafeBenchmark()
-    {
-        var result = "";
-        for (var i = 0; i < Iterations; i++)
-        {
-            var typeId = TypeId.New(Prefix, false);
-            result = typeId.ToString();
+            result = _fastIdTypeIds[i].ToString();
         }
 
         return result;
@@ -43,8 +49,7 @@ public class TypeIdString
         var result = "";
         for (var i = 0; i < Iterations; i++)
         {
-            var typeId = TcKs.TypeId.TypeId.NewId(Prefix);
-            result = typeId.ToString();
+            result = _tcKsTypeIds[i].ToString();
         }
         
         return result;
@@ -57,8 +62,7 @@ public class TypeIdString
 
         for (var i = 0; i < Iterations; i++)
         {
-            var typeId = global::TypeId.TypeId.NewTypeId(Prefix);
-            result = typeId.ToString();
+            result = _evgregTypeIds[i].ToString();
         }
 
         return result;

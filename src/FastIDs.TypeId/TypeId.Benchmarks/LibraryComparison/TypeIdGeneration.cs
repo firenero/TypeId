@@ -6,7 +6,7 @@ namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 [MarkdownExporter]
 public class TypeIdGeneration
 {
-    [Params(10, 1000, 1_000_000, 1_000_000_000)]
+    [Params(10_000_000)]
     public int Iterations;
 
     private const string Prefix = "prefix";
