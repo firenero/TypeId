@@ -4,13 +4,14 @@ using BenchmarkDotNet.Attributes;
 namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 
 [MemoryDiagnoser]
-[MarkdownExporter]
+// [MarkdownExporter]
+[MarkdownExporterAttribute.GitHub]
 public class TypeIdRetrieveFlow
 {
-    [Params(10_000_000)]
+    [Params(1_000_000)]
     public int Iterations;
 
-    [Params(0, 5, 10, 30, 63)]
+    [Params(5, 10, 63)]
     public int PrefixLength;
 
     private string[] _typeIdStrings;

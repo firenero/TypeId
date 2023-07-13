@@ -1,15 +1,18 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿using System.Text;
+using BenchmarkDotNet.Attributes;
 
 namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 
 [MemoryDiagnoser]
-[MarkdownExporter]
+// [MarkdownExporter]
+[MarkdownExporterAttribute.GitHub]
 public class TypeIdString
 {
-    [Params(10_000_000)]
+    [Params(1_000_000)]
     public int Iterations;
     
-    private const string Prefix = "prefix";
+    [Params(5, 10, 63)]
+    public int PrefixLength;
 
     private TypeId[] _fastIdTypeIds;
     private TcKs.TypeId.TypeId[] _tcKsTypeIds;
@@ -18,12 +21,21 @@ public class TypeIdString
     [GlobalSetup]
     public void Setup()
     {
+        var random = new Random(42);
+        var sb = new StringBuilder(PrefixLength);
+        for (var i = 0; i < PrefixLength; i++)
+        {
+            var letter = (char) random.Next('a', 'z');
+            sb.Append(letter);
+        }
+        var prefix = PrefixLength > 0 ? sb.ToString() : "";
+        
         _fastIdTypeIds = new TypeId[Iterations];
         _tcKsTypeIds = new TcKs.TypeId.TypeId[Iterations];
         _evgregTypeIds = new global::TypeId.TypeId[Iterations];
         for (var i = 0; i < Iterations; i++)
         {
-            var typeId = TypeId.New(Prefix);
+            var typeId = TypeId.New(prefix);
             var typeIdString = typeId.ToString();
             _fastIdTypeIds[i] = typeId;
             _tcKsTypeIds[i] = TcKs.TypeId.TypeId.Parse(typeIdString);
