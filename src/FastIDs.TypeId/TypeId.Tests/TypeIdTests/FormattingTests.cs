@@ -31,7 +31,7 @@ public class FormattingTests
     }
     
     [TestCaseSource(nameof(ToStringTestCases))]
-    public void ToString_WithPrefix_StringReturned(string typeIdString)
+    public void ToString_StringReturned(string typeIdString)
     {
         var typeId = TypeId.Parse(typeIdString);
 

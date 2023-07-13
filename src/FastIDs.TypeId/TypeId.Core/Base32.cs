@@ -4,45 +4,45 @@ namespace FastIDs.TypeId;
 
 internal static class Base32
 {
-    public static string Encode(ReadOnlySpan<byte> bytes)
+    public static int Encode(ReadOnlySpan<byte> bytes, Span<char> output)
     {
         if (bytes.Length != Base32Constants.DecodedLength)
             throw new FormatException($"Input must be {Base32Constants.DecodedLength} bytes long.");
-
-        Span<char> dst = stackalloc char[Base32Constants.EncodedLength];
+        if (output.Length < Base32Constants.EncodedLength)
+            throw new FormatException($"Output must be at least {Base32Constants.EncodedLength} chars long.");
         
         const string alpha = Base32Constants.Alphabet;
         // 10 byte timestamp
-        dst[0] = alpha[(bytes[0] & 224) >> 5];
-        dst[1] = alpha[bytes[0] & 31];
-        dst[2] = alpha[(bytes[1] & 248) >> 3];
-        dst[3] = alpha[((bytes[1] & 7) << 2) | ((bytes[2] & 192) >> 6)];
-        dst[4] = alpha[(bytes[2] & 62) >> 1];
-        dst[5] = alpha[((bytes[2] & 1) << 4) | ((bytes[3] & 240) >> 4)];
-        dst[6] = alpha[((bytes[3] & 15) << 1) | ((bytes[4] & 128) >> 7)];
-        dst[7] = alpha[(bytes[4] & 124) >> 2];
-        dst[8] = alpha[((bytes[4] & 3) << 3) | ((bytes[5] & 224) >> 5)];
-        dst[9] = alpha[bytes[5] & 31];
+        output[0] = alpha[(bytes[0] & 224) >> 5];
+        output[1] = alpha[bytes[0] & 31];
+        output[2] = alpha[(bytes[1] & 248) >> 3];
+        output[3] = alpha[((bytes[1] & 7) << 2) | ((bytes[2] & 192) >> 6)];
+        output[4] = alpha[(bytes[2] & 62) >> 1];
+        output[5] = alpha[((bytes[2] & 1) << 4) | ((bytes[3] & 240) >> 4)];
+        output[6] = alpha[((bytes[3] & 15) << 1) | ((bytes[4] & 128) >> 7)];
+        output[7] = alpha[(bytes[4] & 124) >> 2];
+        output[8] = alpha[((bytes[4] & 3) << 3) | ((bytes[5] & 224) >> 5)];
+        output[9] = alpha[bytes[5] & 31];
 
         // 16 bytes of entropy
-        dst[10] = alpha[(bytes[6] & 248) >> 3];
-        dst[11] = alpha[((bytes[6] & 7) << 2) | ((bytes[7] & 192) >> 6)];
-        dst[12] = alpha[(bytes[7] & 62) >> 1];
-        dst[13] = alpha[((bytes[7] & 1) << 4) | ((bytes[8] & 240) >> 4)];
-        dst[14] = alpha[((bytes[8] & 15) << 1) | ((bytes[9] & 128) >> 7)];
-        dst[15] = alpha[(bytes[9] & 124) >> 2];
-        dst[16] = alpha[((bytes[9] & 3) << 3) | ((bytes[10] & 224) >> 5)];
-        dst[17] = alpha[bytes[10] & 31];
-        dst[18] = alpha[(bytes[11] & 248) >> 3];
-        dst[19] = alpha[((bytes[11] & 7) << 2) | ((bytes[12] & 192) >> 6)];
-        dst[20] = alpha[(bytes[12] & 62) >> 1];
-        dst[21] = alpha[((bytes[12] & 1) << 4) | ((bytes[13] & 240) >> 4)];
-        dst[22] = alpha[((bytes[13] & 15) << 1) | ((bytes[14] & 128) >> 7)];
-        dst[23] = alpha[(bytes[14] & 124) >> 2];
-        dst[24] = alpha[((bytes[14] & 3) << 3) | ((bytes[15] & 224) >> 5)];
-        dst[25] = alpha[bytes[15] & 31];
+        output[10] = alpha[(bytes[6] & 248) >> 3];
+        output[11] = alpha[((bytes[6] & 7) << 2) | ((bytes[7] & 192) >> 6)];
+        output[12] = alpha[(bytes[7] & 62) >> 1];
+        output[13] = alpha[((bytes[7] & 1) << 4) | ((bytes[8] & 240) >> 4)];
+        output[14] = alpha[((bytes[8] & 15) << 1) | ((bytes[9] & 128) >> 7)];
+        output[15] = alpha[(bytes[9] & 124) >> 2];
+        output[16] = alpha[((bytes[9] & 3) << 3) | ((bytes[10] & 224) >> 5)];
+        output[17] = alpha[bytes[10] & 31];
+        output[18] = alpha[(bytes[11] & 248) >> 3];
+        output[19] = alpha[((bytes[11] & 7) << 2) | ((bytes[12] & 192) >> 6)];
+        output[20] = alpha[(bytes[12] & 62) >> 1];
+        output[21] = alpha[((bytes[12] & 1) << 4) | ((bytes[13] & 240) >> 4)];
+        output[22] = alpha[((bytes[13] & 15) << 1) | ((bytes[14] & 128) >> 7)];
+        output[23] = alpha[(bytes[14] & 124) >> 2];
+        output[24] = alpha[((bytes[14] & 3) << 3) | ((bytes[15] & 224) >> 5)];
+        output[25] = alpha[bytes[15] & 31];
         
-        return dst.ToString();
+        return Base32Constants.EncodedLength;
     }
 
     public static bool TryDecode(ReadOnlySpan<char> input, Span<byte> output)

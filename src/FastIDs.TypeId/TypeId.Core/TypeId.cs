@@ -99,24 +99,47 @@ public readonly struct TypeId : IEquatable<TypeId>
         : new TypeId(type, uuidV7);
 
     /// <summary>
-    /// Returns ID part of the TypeId as an encoded string.
+    /// Returns the ID part of the TypeId as an encoded string.
     /// </summary>
     /// <returns>ID part of the TypeId as an encoded string.</returns>
     public string GetSuffix()
     {
-        Span<byte> idBytes = stackalloc byte[16];
+        Span<char> suffixChars = stackalloc char[Base32Constants.EncodedLength];
+        GetSuffix(suffixChars);
+        return suffixChars.ToString();
+    }
+
+    /// <summary>
+    /// Returns the ID part of the TypeId as an encoded string.
+    /// </summary>
+    /// <param name="output">When this method returns, contains the encoded ID part of the TypeId.</param>
+    /// <returns>Number of characters written to <paramref name="output"/>.</returns>   
+    public int GetSuffix(Span<char> output)
+    {
+        Span<byte> idBytes = stackalloc byte[Base32Constants.DecodedLength];
         Id.TryWriteBytes(idBytes);
 
         FormatUuidBytes(idBytes);
-        
-        return Base32.Encode(idBytes);
+
+        return Base32.Encode(idBytes, output);
     }
 
     /// <summary>
     /// Returns encoded string representation of the TypeId.
     /// </summary>
     /// <returns>Encoded string representation of the TypeId.</returns>
-    public override string ToString() => Type.Length > 0 ? $"{Type}_{GetSuffix()}" : GetSuffix();
+    public override string ToString()
+    {
+        if (Type.Length == 0)
+            return GetSuffix();
+
+        Span<char> result = stackalloc char[Type.Length + 1 + TypeIdConstants.IdLength];
+        Type.AsSpan().CopyTo(result);
+        result[Type.Length] = '_';
+        
+        GetSuffix(result.Slice(Type.Length + 1));
+        return result.ToString();
+    }
 
     /// <summary>
     /// Parses the specified string into a TypeId.
