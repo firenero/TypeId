@@ -264,7 +264,8 @@ public readonly struct TypeId : IEquatable<TypeId>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void FormatUuidBytes(Span<byte> bytes)
     {
-        bytes[..4].Reverse();
+        (bytes[0], bytes[3]) = (bytes[3], bytes[0]);
+        (bytes[1], bytes[2]) = (bytes[2], bytes[1]);
         (bytes[4], bytes[5]) = (bytes[5], bytes[4]);
         (bytes[6], bytes[7]) = (bytes[7], bytes[6]);
     }
