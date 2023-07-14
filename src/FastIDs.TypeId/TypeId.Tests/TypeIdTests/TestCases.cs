@@ -11,6 +11,8 @@ public static class TestCases
         new TestCaseData("00000000000000000000000000", new Guid("00000000-0000-0000-0000-000000000000")),
         new TestCaseData("00000000000000000000000001", new Guid("00000000-0000-0000-0000-000000000001")),
         new TestCaseData("0000000000000000000000000a", new Guid("00000000-0000-0000-0000-00000000000a")),
+        new TestCaseData("0000000000000000000000000g", new Guid("00000000-0000-0000-0000-000000000010")),
+        new TestCaseData("00000000000000000000000010", new Guid("00000000-0000-0000-0000-000000000020")),
         new TestCaseData("7zzzzzzzzzzzzzzzzzzzzzzzzz", new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff")),
         new TestCaseData("00000000000000000000000010", new Guid("00000000-0000-0000-0000-000000000020")),
         new TestCaseData("01h455vb4pex5vsknk084sn02q", new Guid("01890a5d-ac96-774b-bcce-b302099a8057"))
@@ -22,7 +24,7 @@ public static class TestCases
         new TestCaseData("maxid_7zzzzzzzzzzzzzzzzzzzzzzzzz", new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"), "maxid"),
         new TestCaseData("prefix_0123456789abcdefghjkmnpqrs", new Guid("0110c853-1d09-52d8-d73e-1194e95b5f19"), "prefix"),
         new TestCaseData("type_01h455vb4pex5vsknk084sn02q", new Guid("01890a5d-ac96-774b-bcce-b302099a8057"), "type"),
-        new TestCaseData($"{string.Join("", Enumerable.Repeat("a", 63))}_0123456789abcdefghjkmnpqrs", new Guid("0110c853-1d09-52d8-d73e-1194e95b5f19"), string.Join("", Enumerable.Repeat("a", 63))),
+        new TestCaseData($"{new string('a', 63)}_0123456789abcdefghjkmnpqrs", new Guid("0110c853-1d09-52d8-d73e-1194e95b5f19"), new string('a', 63)),
     };
 
     public static TestCaseData[] InvalidIds => new TestCaseData[]
