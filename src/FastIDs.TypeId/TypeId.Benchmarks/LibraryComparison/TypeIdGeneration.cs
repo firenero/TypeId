@@ -1,15 +1,34 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿using System.Text;
+using BenchmarkDotNet.Attributes;
 
 namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 
 [MemoryDiagnoser]
 [MarkdownExporter]
+[MarkdownExporterAttribute.GitHub]
+[MarkdownExporterAttribute.Default]
 public class TypeIdGeneration
 {
-    [Params(10_000_000)]
+    [Params(1_000_000)]
     public int Iterations;
 
-    private const string Prefix = "prefix";
+    [Params(5, 10, 63)]
+    public int PrefixLength;
+    
+    private string Prefix;
+    
+    [GlobalSetup]
+    public void Setup()
+    {
+        var random = new Random(42);
+        var sb = new StringBuilder(PrefixLength);
+        for (var i = 0; i < PrefixLength; i++)
+        {
+            var letter = (char) random.Next('a', 'z');
+            sb.Append(letter);
+        }
+        Prefix = PrefixLength > 0 ? sb.ToString() : "";
+    }
     
     [Benchmark(Baseline = true)]
     public TypeId FastIdsBenchmark()
@@ -24,7 +43,7 @@ public class TypeIdGeneration
     }
     
     [Benchmark]
-    public TypeId FastIdsWithoutValidationBenchmark2()
+    public TypeId FastIdsWithoutValidationBenchmark()
     {
         TypeId typeId = default;
         for (var i = 0; i < Iterations; i++)
@@ -48,7 +67,7 @@ public class TypeIdGeneration
     }
 
     [Benchmark]
-    public global::TypeId.TypeId EvgregBenchmark()
+    public global::TypeId.TypeId CbuctokBenchmark()
     {
         global::TypeId.TypeId typeId = default;
 

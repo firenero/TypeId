@@ -5,12 +5,14 @@ namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 
 [MemoryDiagnoser]
 [MarkdownExporter]
+[MarkdownExporterAttribute.GitHub]
+[MarkdownExporterAttribute.Default]
 public class TypeIdRetrieveFlow
 {
-    [Params(10_000_000)]
+    [Params(1_000_000)]
     public int Iterations;
 
-    [Params(0, 5, 10, 30, 63)]
+    [Params(5, 10, 63)]
     public int PrefixLength;
 
     private string[] _typeIdStrings;
@@ -72,7 +74,7 @@ public class TypeIdRetrieveFlow
     }
 
     [Benchmark]
-    public string EvgregBenchmark()
+    public string CbuctokBenchmark()
     {
         var result = "";
         foreach (var str in _typeIdStrings)
