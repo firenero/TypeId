@@ -8,9 +8,9 @@ on:
     branches:
       - main
     tags: 
-      - 'type-id-v*'
+      - 'typeid-v*'
     paths:
-      - 'src/**'
+      - 'src/FastIDs.TypeId/**'
   pull_request:
     branches:
       - main   
