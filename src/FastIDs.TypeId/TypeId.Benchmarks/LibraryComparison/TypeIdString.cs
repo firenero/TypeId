@@ -15,9 +15,9 @@ public class TypeIdString
     [Params(5, 10, 63)]
     public int PrefixLength;
 
-    private TypeId[] _fastIdTypeIds;
-    private TcKs.TypeId.TypeId[] _tcKsTypeIds;
-    private global::TypeId.TypeId[] _cbuctokTypeIds;
+    private TypeId[] _fastIdTypeIds = Array.Empty<TypeId>();
+    private TcKs.TypeId.TypeId[] _tcKsTypeIds = Array.Empty<TcKs.TypeId.TypeId>();
+    private global::TypeId.TypeId[] _cbuctokTypeIds = Array.Empty<global::TypeId.TypeId>();
 
     [GlobalSetup]
     public void Setup()

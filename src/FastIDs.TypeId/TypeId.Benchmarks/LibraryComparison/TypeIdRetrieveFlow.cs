@@ -15,7 +15,7 @@ public class TypeIdRetrieveFlow
     [Params(5, 10, 63)]
     public int PrefixLength;
 
-    private string[] _typeIdStrings;
+    private string[] _typeIdStrings = Array.Empty<string>();
 
     [GlobalSetup]
     public void Setup()
