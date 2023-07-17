@@ -112,7 +112,7 @@ public readonly struct TypeId : IEquatable<TypeId>
     /// <summary>
     /// Returns the ID part of the TypeId as an encoded string.
     /// </summary>
-    /// <param name="output">When this method returns, contains the encoded ID part of the TypeId.</param>
+    /// <param name="output">When this method returns, <paramref name="output"/> contains the encoded ID part of the TypeId.</param>
     /// <returns>Number of characters written to <paramref name="output"/>.</returns>   
     public int GetSuffix(Span<char> output)
     {
@@ -127,20 +127,32 @@ public readonly struct TypeId : IEquatable<TypeId>
     /// <summary>
     /// Returns encoded string representation of the TypeId.
     /// </summary>
+    /// <param name="output">When this method returns, <paramref name="output"/> contains the encoded string representation of the TypeId.</param>
+    /// <returns>Number of characters written to <paramref name="output"/>.</returns>
+    public int GetString(Span<char> output)
+    {
+        if (Type.Length == 0)
+            return GetSuffix(output);
+
+        Type.AsSpan().CopyTo(output);
+        output[Type.Length] = '_';
+
+        GetSuffix(output.Slice(Type.Length + 1));
+        return Type.Length + 1 + Base32Constants.EncodedLength;
+    }
+
+    /// <summary>
+    /// Returns encoded string representation of the TypeId.
+    /// </summary>
     /// <returns>Encoded string representation of the TypeId.</returns>
     public override string ToString()
     {
-        if (Type.Length == 0)
-            return GetSuffix();
-
         Span<char> result = stackalloc char[Type.Length + 1 + TypeIdConstants.IdLength];
-        Type.AsSpan().CopyTo(result);
-        result[Type.Length] = '_';
+        var charsWritten = GetString(result);
         
-        GetSuffix(result.Slice(Type.Length + 1));
-        return result.ToString();
+        return result[..charsWritten].ToString();
     }
-
+    
     /// <summary>
     /// Parses the specified string into a TypeId.
     /// </summary>
