@@ -15,7 +15,7 @@ public class TypeIdGeneration
     [Params(5, 10, 63)]
     public int PrefixLength;
     
-    private string Prefix;
+    private string Prefix = "";
     
     [GlobalSetup]
     public void Setup()

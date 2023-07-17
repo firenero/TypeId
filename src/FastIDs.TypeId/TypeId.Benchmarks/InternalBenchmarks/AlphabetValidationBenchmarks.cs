@@ -8,7 +8,7 @@ public class AlphabetValidationBenchmarks
     [Params(3, 6, 10, 30, 63)]
     public int PrefixLength;
 
-    private string _prefix;
+    private string _prefix = "";
     
     private const string AlphabetStr = "abcdefghijklmnopqrstuvwxyz";
     private readonly HashSet<char> _alphabetSet = new(AlphabetStr);
@@ -17,11 +17,11 @@ public class AlphabetValidationBenchmarks
     public void Setup()
     {
         var random = new Random(42);
+        _prefix = "";
         for (var i = 0; i < PrefixLength; i++)
         {
             _prefix += (char) random.Next('a', 'z');
         }
-        _prefix = new string('a', PrefixLength);
     }
     
     [Benchmark]
