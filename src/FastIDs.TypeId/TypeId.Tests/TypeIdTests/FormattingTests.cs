@@ -2,7 +2,6 @@
 using System.Linq;
 using FastIDs.TypeId;
 using FluentAssertions;
-using NUnit.Framework;
 
 namespace TypeIdTests.TypeIdTests;
 

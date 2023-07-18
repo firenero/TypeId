@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using UUIDNext;
+using UUIDNext.Generator;
 
 namespace FastIDs.TypeId;
 
@@ -97,6 +98,16 @@ public readonly struct TypeId : IEquatable<TypeId>
     public static TypeId FromUuidV7(string type, Guid uuidV7, bool validateType) => validateType
         ? FromUuidV7(type, uuidV7)
         : new TypeId(type, uuidV7);
+
+    /// <summary>
+    /// Returns the ID generation timestamp.
+    /// </summary>
+    /// <returns>DateTimeOffset representing the ID generation timestamp.</returns>
+    public DateTimeOffset GetTimestamp()
+    {
+        var (timestampMs, _) = UuidV7Generator.Decode(Id);
+        return DateTimeOffset.FromUnixTimeMilliseconds(timestampMs);
+    }
 
     /// <summary>
     /// Returns the ID part of the TypeId as an encoded string.
