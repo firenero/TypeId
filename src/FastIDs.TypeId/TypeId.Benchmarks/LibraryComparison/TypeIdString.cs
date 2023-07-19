@@ -5,79 +5,66 @@ namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 
 [MemoryDiagnoser]
 [MarkdownExporter]
-[MarkdownExporterAttribute.GitHub]
 [MarkdownExporterAttribute.Default]
 public class TypeIdString
 {
-    [Params(1_000_000)]
-    public int Iterations;
-    
-    [Params(5, 10, 63)]
+    [Params(0, 5, 10, 30, 63)]
     public int PrefixLength;
 
-    private TypeId[] _fastIdTypeIds = Array.Empty<TypeId>();
-    private TcKs.TypeId.TypeId[] _tcKsTypeIds = Array.Empty<TcKs.TypeId.TypeId>();
-    private global::TypeId.TypeId[] _cbuctokTypeIds = Array.Empty<global::TypeId.TypeId>();
-
-    [GlobalSetup]
-    public void Setup()
+    private readonly string _prefixFull;
+    private readonly Guid _uuidV7;
+    
+    private TypeId _fastIdTypeId;
+    private TypeIdDecoded _fastIdTypeIdDecoded;
+    private TcKs.TypeId.TypeId _tcKsTypeId;
+    private global::TypeId.TypeId _cbuctokTypeId;
+    
+    public TypeIdString()
     {
         var random = new Random(42);
-        var sb = new StringBuilder(PrefixLength);
-        for (var i = 0; i < PrefixLength; i++)
+        var sb = new StringBuilder(63);
+        for (var i = 0; i < 63; i++)
         {
             var letter = (char) random.Next('a', 'z');
             sb.Append(letter);
         }
-        var prefix = PrefixLength > 0 ? sb.ToString() : "";
-        
-        _fastIdTypeIds = new TypeId[Iterations];
-        _tcKsTypeIds = new TcKs.TypeId.TypeId[Iterations];
-        _cbuctokTypeIds = new global::TypeId.TypeId[Iterations];
-        for (var i = 0; i < Iterations; i++)
-        {
-            var typeId = TypeId.New(prefix);
-            var typeIdString = typeId.ToString();
-            _fastIdTypeIds[i] = typeId;
-            _tcKsTypeIds[i] = TcKs.TypeId.TypeId.Parse(typeIdString);
-            _cbuctokTypeIds[i] = global::TypeId.TypeId.Parse(typeIdString);
-        }
+        _prefixFull = sb.ToString();
+
+        _uuidV7 = new Guid("01890a5d-ac96-774b-bcce-b302099a8057");
+    }
+
+    [GlobalSetup]
+    public void Setup()
+    {
+        var prefix = _prefixFull[..PrefixLength];
+
+        _fastIdTypeIdDecoded = TypeId.FromUuidV7(prefix, _uuidV7);
+        _fastIdTypeId = _fastIdTypeIdDecoded.Encode();
+        _tcKsTypeId = new TcKs.TypeId.TypeId(prefix, _uuidV7);
+        _cbuctokTypeId = new global::TypeId.TypeId(prefix, _uuidV7);
+    }
+
+    [Benchmark(Baseline = true)]
+    public string FastIdsDecoded()
+    {
+        return _fastIdTypeIdDecoded.ToString();
     }
     
-    [Benchmark(Baseline = true)]
-    public string FastIdsBenchmark()
+    [Benchmark]
+    public string FastIdsEncoded()
     {
-        var result = "";
-        for (var i = 0; i < Iterations; i++)
-        {
-            result = _fastIdTypeIds[i].ToString();
-        }
-
-        return result;
+        return _fastIdTypeId.ToString();
     }
 
     [Benchmark]
-    public string TcKsBenchmark()
+    public string TcKs()
     {
-        var result = "";
-        for (var i = 0; i < Iterations; i++)
-        {
-            result = _tcKsTypeIds[i].ToString();
-        }
-        
-        return result;
+        return _tcKsTypeId.ToString();
     }
 
     [Benchmark]
-    public string CbuctokBenchmark()
+    public string Cbuctok()
     {
-        var result = "";
-
-        for (var i = 0; i < Iterations; i++)
-        {
-            result = _cbuctokTypeIds[i].ToString();
-        }
-
-        return result;
+        return _cbuctokTypeId.ToString();
     }
 }

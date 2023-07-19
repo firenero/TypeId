@@ -5,83 +5,62 @@ namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 
 [MemoryDiagnoser]
 [MarkdownExporter]
-[MarkdownExporterAttribute.GitHub]
 [MarkdownExporterAttribute.Default]
 public class TypeIdRetrieveFlow
 {
-    [Params(1_000_000)]
-    public int Iterations;
-
-    [Params(5, 10, 63)]
+    [Params(0, 5, 10, 30, 63)]
     public int PrefixLength;
 
-    private string[] _typeIdStrings = Array.Empty<string>();
+    private string _typeIdString = "";
+    
+    private readonly string _prefixFull;
+    private readonly Guid _uuidV7;
 
-    [GlobalSetup]
-    public void Setup()
+    public TypeIdRetrieveFlow()
     {
         var random = new Random(42);
-        var sb = new StringBuilder(PrefixLength);
-        for (var i = 0; i < PrefixLength; i++)
+        var sb = new StringBuilder(63);
+        for (var i = 0; i < 63; i++)
         {
             var letter = (char) random.Next('a', 'z');
             sb.Append(letter);
         }
-        var prefix = PrefixLength > 0 ? sb.ToString() : "";
+        _prefixFull = sb.ToString();
+        _uuidV7 = new Guid("01890a5d-ac96-774b-bcce-b302099a8057");
+    }
 
-        _typeIdStrings = new string[Iterations];
-        for (var i = 0; i < Iterations; i++)
-        {
-            _typeIdStrings[i] = TypeId.New(prefix, false).ToString();
-        }        
+    [GlobalSetup]
+    public void Setup()
+    {
+        _typeIdString = TypeId.FromUuidV7(_prefixFull[..PrefixLength], _uuidV7).ToString();
     }
     
     [Benchmark(Baseline = true)]
-    public string FastIdsBenchmark()
+    public string FastIds()
     {
-        var result = "";
-        foreach (var str in _typeIdStrings)
-        {
-            var typeId = TypeId.Parse(str);
-            result = typeId.ToString();
-        }
-        return result;
+        var typeId = TypeId.Parse(_typeIdString);
+        return typeId.ToString();
     }
     
     [Benchmark]
-    public string FastIdsWithoutValidationBenchmark()
+    public string FastIdsDecode()
     {
-        var result = "";
-        foreach (var str in _typeIdStrings)
-        {
-            var typeId = TypeId.Parse(str);
-            result = typeId.ToString();
-        }
-
-        return result;
+        var typeId = TypeId.Parse(_typeIdString);
+        var decoded = typeId.Decode();
+        return decoded.ToString();
     }
 
     [Benchmark]
     public string TcKsBenchmark()
     {
-        var result = "";
-        foreach (var str in _typeIdStrings)
-        {
-            var typeId = TcKs.TypeId.TypeId.Parse(str);
-            result = typeId.ToString();
-        }
-        return result;
+        var typeId = TcKs.TypeId.TypeId.Parse(_typeIdString);
+        return typeId.ToString();
     }
 
     [Benchmark]
     public string CbuctokBenchmark()
     {
-        var result = "";
-        foreach (var str in _typeIdStrings)
-        {
-            var typeId = global::TypeId.TypeId.Parse(str);
-            result = typeId.ToString();
-        }
-        return result;
+        var typeId = global::TypeId.TypeId.Parse(_typeIdString);
+        return typeId.ToString();
     }
 }

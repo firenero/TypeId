@@ -5,108 +5,72 @@ namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 
 [MemoryDiagnoser]
 [MarkdownExporter]
-[MarkdownExporterAttribute.GitHub]
 [MarkdownExporterAttribute.Default]
 public class TypeIdParsing
 {
-    [Params(1_000_000)]
-    public int Iterations;
-    
-    [Params(5, 10, 63)]
+    [Params(0, 5, 10, 30, 63)]
     public int PrefixLength;
 
-    private string[] _typeIdStrings = Array.Empty<string>();
+    private string _typeIdString = "";
+    
+    private readonly string _prefixFull;
+    private readonly Guid _uuidV7;
 
-    [GlobalSetup]
-    public void Setup()
+    public TypeIdParsing()
     {
         var random = new Random(42);
-        var sb = new StringBuilder(PrefixLength);
-        for (var i = 0; i < PrefixLength; i++)
+        var sb = new StringBuilder(63);
+        for (var i = 0; i < 63; i++)
         {
             var letter = (char) random.Next('a', 'z');
             sb.Append(letter);
         }
-        var prefix = PrefixLength > 0 ? sb.ToString() : "";
-        
-        _typeIdStrings = new string[Iterations];
-        for (var i = 0; i < Iterations; i++)
-        {
-            _typeIdStrings[i] = TypeId.New(prefix).ToString();
-        }
+        _prefixFull = sb.ToString();
+        _uuidV7 = new Guid("01890a5d-ac96-774b-bcce-b302099a8057");
+    }
+
+    [GlobalSetup]
+    public void Setup()
+    {
+        _typeIdString = TypeId.FromUuidV7(_prefixFull[..PrefixLength], _uuidV7).ToString();
     }
 
     [Benchmark(Baseline = true)]
     public TypeId FastIdsParse()
     {
-        TypeId typeId = default;
-        foreach (var str in _typeIdStrings)
-        {
-            typeId = TypeId.Parse(str);
-        }
-
-        return typeId;
+        return TypeId.Parse(_typeIdString);
     }
     
     [Benchmark]
     public TypeId FastIdsTryParse()
     {
-        TypeId typeId = default;
-        foreach (var str in _typeIdStrings)
-        {
-            TypeId.TryParse(str, out typeId);
-        }
-
+        TypeId.TryParse(_typeIdString, out var typeId);
         return typeId;
     }
 
     [Benchmark]
     public TcKs.TypeId.TypeId TcKsParse()
     {
-        TcKs.TypeId.TypeId typeId = default;
-        foreach (var str in _typeIdStrings)
-        {
-            typeId = TcKs.TypeId.TypeId.Parse(str);
-        }
-        
-        return typeId;
+        return TcKs.TypeId.TypeId.Parse(_typeIdString);
     }
     
     [Benchmark]
     public TcKs.TypeId.TypeId TcKsTryParse()
     {
-        TcKs.TypeId.TypeId typeId = default;
-        foreach (var str in _typeIdStrings)
-        {
-            TcKs.TypeId.TypeId.TryParse(str, out typeId);
-        }
-        
+        TcKs.TypeId.TypeId.TryParse(_typeIdString, out var typeId);
         return typeId;
     }
 
     [Benchmark]
     public global::TypeId.TypeId CbuctokParse()
     {
-        global::TypeId.TypeId typeId = default;
-
-        foreach (var str in _typeIdStrings)
-        {
-            typeId = global::TypeId.TypeId.Parse(str);
-        }
-
-        return typeId;
+        return global::TypeId.TypeId.Parse(_typeIdString);
     }
     
     [Benchmark]
     public global::TypeId.TypeId CbuctokTryParse()
     {
-        global::TypeId.TypeId typeId = default;
-
-        foreach (var str in _typeIdStrings)
-        {
-            global::TypeId.TypeId.TryParse(str, out typeId);
-        }
-
+        global::TypeId.TypeId.TryParse(_typeIdString, out var typeId);
         return typeId;
     }
 }
