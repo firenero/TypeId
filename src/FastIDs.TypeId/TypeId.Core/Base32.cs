@@ -81,6 +81,19 @@ internal static class Base32
 
         return true;
     }
+    
+    public static bool IsValid(ReadOnlySpan<char> input)
+    {
+        if (input.Length != Base32Constants.EncodedLength)
+            return false;
+
+        Span<byte> inputBytes = stackalloc byte[Base32Constants.EncodedLength];
+        var writtenBytesCount = Encoding.UTF8.GetBytes(input, inputBytes);
+        if (writtenBytesCount != Base32Constants.EncodedLength)
+            return false;
+
+        return AreValidBytes(inputBytes);
+    }
 
     private static bool AreValidBytes(ReadOnlySpan<byte> bytes)
     {

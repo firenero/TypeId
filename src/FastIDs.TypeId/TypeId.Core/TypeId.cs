@@ -1,7 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using UUIDNext;
-using UUIDNext.Generator;
 
 namespace FastIDs.TypeId;
 
@@ -19,20 +18,66 @@ namespace FastIDs.TypeId;
 [StructLayout(LayoutKind.Auto)]
 public readonly struct TypeId : IEquatable<TypeId>
 {
-    /// <summary>
-    /// Type of the ID. Can be empty.
-    /// </summary>
-    public string Type { get; }
-    
-    /// <summary>
-    /// UUIDv7 ID part of the TypeId.
-    /// </summary>
-    public Guid Id { get; }
+    private readonly string _str;
 
-    private TypeId(string type, Guid id)
+    internal TypeId(string str)
     {
-        Type = type;
-        Id = id;
+        _str = str;
+    }
+
+    private int SeparatorIndex => _str.Length - TypeIdConstants.IdLength - 1;
+
+    /// <summary>
+    /// Returns a value indicating whether the TypeId has the specified type.
+    /// </summary>
+    /// <param name="type">The type to compare.</param>
+    /// <returns><c>true</c> if the TypeId has the specified type; otherwise, <c>false</c>.</returns>
+    public bool HasType(string type) => HasType(type.AsSpan());
+
+    /// <summary>
+    /// Returns a value indicating whether the TypeId has the specified type.
+    /// </summary>
+    /// <param name="type">The type to compare.</param>
+    /// <returns><c>true</c> if the TypeId has the specified type; otherwise, <c>false</c>.</returns>
+    public bool HasType(ReadOnlySpan<char> type)
+    {
+        var thisTypeLen = SeparatorIndex > 0 ? SeparatorIndex : 0;
+
+        return type.SequenceEqual(_str.AsSpan(0, thisTypeLen));
+    }
+
+    /// <summary>
+    /// Returns a string representation of the TypeId.
+    /// </summary>
+    /// <returns>A string representation of the TypeId.</returns>
+    public override string ToString() => _str;
+
+    /// <summary>
+    /// A type component of the TypeId.
+    /// </summary>
+    public ReadOnlySpan<char> Type => SeparatorIndex > 0 ? _str.AsSpan(0, SeparatorIndex) : ReadOnlySpan<char>.Empty;
+
+    /// <summary>
+    /// An encoded UUIDv7 component of the TypeId.
+    /// </summary>
+    public ReadOnlySpan<char> Suffix => _str.AsSpan(SeparatorIndex + 1);
+
+    /// <summary>
+    /// Decodes the TypeId into components <see cref="TypeIdDecoded"/> struct.
+    /// </summary>
+    /// <returns>Decoded TypeId.</returns>
+    public TypeIdDecoded Decode()
+    {
+        var idSpan = _str.AsSpan(SeparatorIndex + 1);
+        Span<byte> decoded = stackalloc byte[Base32Constants.DecodedLength];
+
+        var canDecode = Base32.TryDecode(idSpan, decoded);
+        Debug.Assert(canDecode, "Id is not a valid Base32 string. Should never happen because it was validated before.");
+
+        TypeIdParser.FormatUuidBytes(decoded);
+
+        var type = SeparatorIndex > 0 ? _str[..SeparatorIndex] : "";
+        return new TypeIdDecoded(type, new Guid(decoded));
     }
 
     /// <summary>
@@ -44,8 +89,8 @@ public readonly struct TypeId : IEquatable<TypeId>
     /// <remarks>
     /// This method validates the type. If you are sure that type is valid use <see cref="New(string, bool)"/> to skip type validation.
     /// </remarks>
-    public static TypeId New(string type) => FromUuidV7(type, Uuid.NewSequential());
-    
+    public static TypeIdDecoded New(string type) => TypeIdDecoded.New(type);
+
     /// <summary>
     /// Generates new TypeId with the specified type and random UUIDv7. If <paramref name="validateType"/> is false, type is not validated.
     /// </summary>
@@ -57,7 +102,7 @@ public readonly struct TypeId : IEquatable<TypeId>
     /// Use this method with <paramref name="validateType"/> set to false when you are sure that <paramref name="type"/> is valid.
     /// This method is a bit faster than <see cref="New(string)"/> (especially for longer types) because it skips type validation.
     /// </remarks>
-    public static TypeId New(string type, bool validateType) => validateType ? New(type) : new TypeId(type, Uuid.NewSequential());
+    public static TypeIdDecoded New(string type, bool validateType) => TypeIdDecoded.New(type, validateType);
 
     /// <summary>
     /// Generates new TypeId with the specified type and UUIDv7.
@@ -71,15 +116,7 @@ public readonly struct TypeId : IEquatable<TypeId>
     /// <br/><br/>
     /// This method validates the type. If you are sure that type is valid use <see cref="New(string, bool)"/> to skip type validation.
     /// </remarks>
-    public static TypeId FromUuidV7(string type, Guid uuidV7)
-    {
-        if (type.Length > TypeIdConstants.MaxTypeLength)
-            throw new FormatException($"Type can be at most {TypeIdConstants.MaxTypeLength} characters long.");
-        if (!ValidateTypeAlphabet(type))
-            throw new FormatException("Type must contain only lowercase letters.");
-
-        return new TypeId(type, uuidV7);
-    }
+    public static TypeIdDecoded FromUuidV7(string type, Guid uuidV7) => TypeIdDecoded.FromUuidV7(type, uuidV7);
 
     /// <summary>
     /// Generates new TypeId with the specified type and UUIDv7. If <paramref name="validateType"/> is false, type is not validated.
@@ -95,75 +132,8 @@ public readonly struct TypeId : IEquatable<TypeId>
     /// Use this method with <paramref name="validateType"/> set to false when you are sure that <paramref name="type"/> is valid.
     /// This method is a bit faster than <see cref="New(string)"/> (especially for longer types) because it skips type validation.
     /// </remarks>
-    public static TypeId FromUuidV7(string type, Guid uuidV7, bool validateType) => validateType
-        ? FromUuidV7(type, uuidV7)
-        : new TypeId(type, uuidV7);
+    public static TypeIdDecoded FromUuidV7(string type, Guid uuidV7, bool validateType) => TypeIdDecoded.FromUuidV7(type, uuidV7, validateType);
 
-    /// <summary>
-    /// Returns the ID generation timestamp.
-    /// </summary>
-    /// <returns>DateTimeOffset representing the ID generation timestamp.</returns>
-    public DateTimeOffset GetTimestamp()
-    {
-        var (timestampMs, _) = UuidV7Generator.Decode(Id);
-        return DateTimeOffset.FromUnixTimeMilliseconds(timestampMs);
-    }
-
-    /// <summary>
-    /// Returns the ID part of the TypeId as an encoded string.
-    /// </summary>
-    /// <returns>ID part of the TypeId as an encoded string.</returns>
-    public string GetSuffix()
-    {
-        Span<char> suffixChars = stackalloc char[Base32Constants.EncodedLength];
-        GetSuffix(suffixChars);
-        return suffixChars.ToString();
-    }
-
-    /// <summary>
-    /// Returns the ID part of the TypeId as an encoded string.
-    /// </summary>
-    /// <param name="output">When this method returns, <paramref name="output"/> contains the encoded ID part of the TypeId.</param>
-    /// <returns>Number of characters written to <paramref name="output"/>.</returns>   
-    public int GetSuffix(Span<char> output)
-    {
-        Span<byte> idBytes = stackalloc byte[Base32Constants.DecodedLength];
-        Id.TryWriteBytes(idBytes);
-
-        FormatUuidBytes(idBytes);
-
-        return Base32.Encode(idBytes, output);
-    }
-
-    /// <summary>
-    /// Returns encoded string representation of the TypeId.
-    /// </summary>
-    /// <param name="output">When this method returns, <paramref name="output"/> contains the encoded string representation of the TypeId.</param>
-    /// <returns>Number of characters written to <paramref name="output"/>.</returns>
-    public int GetString(Span<char> output)
-    {
-        if (Type.Length == 0)
-            return GetSuffix(output);
-
-        Type.AsSpan().CopyTo(output);
-        output[Type.Length] = '_';
-
-        GetSuffix(output.Slice(Type.Length + 1));
-        return Type.Length + 1 + Base32Constants.EncodedLength;
-    }
-
-    /// <summary>
-    /// Returns encoded string representation of the TypeId.
-    /// </summary>
-    /// <returns>Encoded string representation of the TypeId.</returns>
-    public override string ToString()
-    {
-        Span<char> result = stackalloc char[Type.Length + 1 + TypeIdConstants.IdLength];
-        var charsWritten = GetString(result);
-        
-        return result[..charsWritten].ToString();
-    }
-    
     /// <summary>
     /// Parses the specified string into a TypeId.
     /// </summary>
@@ -187,7 +157,7 @@ public readonly struct TypeId : IEquatable<TypeId>
             throw new FormatException($"Type can be at most {TypeIdConstants.MaxTypeLength} characters long.");
 
         var typeSpan = separatorIdx != -1 ? input.AsSpan(0, separatorIdx) : ReadOnlySpan<char>.Empty;
-        if (!ValidateTypeAlphabet(typeSpan))
+        if (!TypeIdParser.ValidateTypeAlphabet(typeSpan))
             throw new FormatException("Type must contain only lowercase letters.");
 
         var idSpan = input.AsSpan(separatorIdx + 1);
@@ -195,14 +165,11 @@ public readonly struct TypeId : IEquatable<TypeId>
             throw new FormatException($"Id must be {TypeIdConstants.IdLength} characters long.");
         if (idSpan[0] > '7')
             throw new FormatException("The maximum possible suffix for TypeId is '7zzzzzzzzzzzzzzzzzzzzzzzzz'");
-        
-        Span<byte> decoded = stackalloc byte[Base32Constants.DecodedLength];
-        if (!Base32.TryDecode(idSpan, decoded))
-            throw new FormatException("Id is not a valid Base32 string.");
- 
-        FormatUuidBytes(decoded);
 
-        return new TypeId(typeSpan.ToString(), new Guid(decoded));
+        if (!Base32.IsValid(idSpan))
+            throw new FormatException("Id is not a valid Base32 string.");
+
+        return new TypeId(input);
     }
 
     /// <summary>
@@ -226,70 +193,35 @@ public readonly struct TypeId : IEquatable<TypeId>
             return Error(out result);
 
         var typeSpan = separatorIdx != -1 ? input.AsSpan(0, separatorIdx) : ReadOnlySpan<char>.Empty;
-        if (!ValidateTypeAlphabet(typeSpan))
+        if (!TypeIdParser.ValidateTypeAlphabet(typeSpan))
             return Error(out result);
 
         var idSpan = input.AsSpan(separatorIdx + 1);
         if (idSpan.Length != TypeIdConstants.IdLength || idSpan[0] > '7')
             return Error(out result);
 
-        Span<byte> decoded = stackalloc byte[Base32Constants.DecodedLength];
-        if (!Base32.TryDecode(idSpan, decoded))
+        if (!Base32.IsValid(idSpan))
             return Error(out result);
-        
-        FormatUuidBytes(decoded);
 
-        result = new TypeId(typeSpan.ToString(), new Guid(decoded));
+        result = new TypeId(input);
         return true;
     }
 
-    /// <summary>
-    /// Returns a value indicating whether this instance and a specified TypeId object represent the same value.
-    /// </summary>
-    /// <param name="other">The TypeId to compare to this instance.</param>
-    /// <returns>True if <paramref name="other"/> is equal to this instance; otherwise, false.</returns>
-    public bool Equals(TypeId other) => Type == other.Type && Id.Equals(other.Id);
+    public bool Equals(TypeId other) => _str == other._str;
 
-    /// <summary>
-    /// Returns a value indicating whether this instance and a specified object represent the same value.
-    /// </summary>
-    /// <param name="obj">The object to compare with this instance.</param>
-    /// <returns>True if <paramref name="obj"/> is a TypeId and equal to this instance; otherwise, false.</returns>
     public override bool Equals(object? obj) => obj is TypeId other && Equals(other);
 
-    /// <summary>Returns the hash code for this instance.</summary>
-    /// <returns>A 32-bit signed integer hash code.</returns>
-    public override int GetHashCode() => HashCode.Combine(Type, Id);
+    public override int GetHashCode() => _str.GetHashCode();
 
     public static bool operator ==(TypeId left, TypeId right) => left.Equals(right);
 
     public static bool operator !=(TypeId left, TypeId right) => !left.Equals(right);
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool Error(out TypeId result)
     {
         result = default;
         return false;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool ValidateTypeAlphabet(ReadOnlySpan<char> type)
-    {
-        foreach (var c in type)
-        {
-            if (c is < 'a' or > 'z')
-                return false;
-        }
-
-        return true;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void FormatUuidBytes(Span<byte> bytes)
-    {
-        (bytes[0], bytes[3]) = (bytes[3], bytes[0]);
-        (bytes[1], bytes[2]) = (bytes[2], bytes[1]);
-        (bytes[4], bytes[5]) = (bytes[5], bytes[4]);
-        (bytes[6], bytes[7]) = (bytes[7], bytes[6]);
     }
 }

@@ -5,77 +5,54 @@ namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 
 [MemoryDiagnoser]
 [MarkdownExporter]
-[MarkdownExporterAttribute.GitHub]
 [MarkdownExporterAttribute.Default]
 public class TypeIdGeneration
 {
-    [Params(1_000_000)]
-    public int Iterations;
-
-    [Params(5, 10, 63)]
+    [Params(0, 5, 10, 30, 63)]
     public int PrefixLength;
     
-    private string Prefix = "";
-    
-    [GlobalSetup]
-    public void Setup()
+    private string _prefix = "";
+    private readonly string _prefixFull;
+
+    public TypeIdGeneration()
     {
         var random = new Random(42);
-        var sb = new StringBuilder(PrefixLength);
-        for (var i = 0; i < PrefixLength; i++)
+        var sb = new StringBuilder(63);
+        for (var i = 0; i < 63; i++)
         {
             var letter = (char) random.Next('a', 'z');
             sb.Append(letter);
         }
-        Prefix = PrefixLength > 0 ? sb.ToString() : "";
+        _prefixFull = sb.ToString();
     }
-    
+
+    [GlobalSetup]
+    public void Setup()
+    {
+        _prefix = _prefixFull[..PrefixLength];
+    }
+
     [Benchmark(Baseline = true)]
-    public TypeId FastIdsBenchmark()
+    public TypeIdDecoded FastIdsBenchmark()
     {
-        TypeId typeId = default;
-        for (var i = 0; i < Iterations; i++)
-        {
-            typeId = TypeId.New(Prefix);
-        }
-
-        return typeId;
+        return TypeId.New(_prefix);
     }
-    
-    [Benchmark]
-    public TypeId FastIdsWithoutValidationBenchmark()
-    {
-        TypeId typeId = default;
-        for (var i = 0; i < Iterations; i++)
-        {
-            typeId = TypeId.New(Prefix, false);
-        }
 
-        return typeId;
+    [Benchmark]
+    public TypeIdDecoded FastIdsNoCheckBenchmark()
+    {
+        return TypeId.New(_prefix, false);
     }
 
     [Benchmark]
     public TcKs.TypeId.TypeId TcKsBenchmark()
     {
-        TcKs.TypeId.TypeId typeId = default;
-        for (var i = 0; i < Iterations; i++)
-        {
-            typeId = TcKs.TypeId.TypeId.NewId(Prefix);
-        }
-        
-        return typeId;
+        return TcKs.TypeId.TypeId.NewId(_prefix);
     }
 
     [Benchmark]
     public global::TypeId.TypeId CbuctokBenchmark()
     {
-        global::TypeId.TypeId typeId = default;
-
-        for (var i = 0; i < Iterations; i++)
-        {
-            typeId = global::TypeId.TypeId.NewTypeId(Prefix);
-        }
-
-        return typeId;
+        return global::TypeId.TypeId.NewTypeId(_prefix);
     }
 }
