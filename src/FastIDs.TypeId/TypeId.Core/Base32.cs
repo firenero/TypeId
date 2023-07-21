@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace FastIDs.TypeId;
 
@@ -55,7 +56,7 @@ internal static class Base32
         if (writtenBytesCount != Base32Constants.EncodedLength)
             return false;
 
-        if (!AreValidBytes(inputBytes))
+        if (!IsValidAlphabet(input))
             return false;
 
         var dec = Base32Constants.DecodingTable;
@@ -87,12 +88,48 @@ internal static class Base32
         if (input.Length != Base32Constants.EncodedLength)
             return false;
 
-        Span<byte> inputBytes = stackalloc byte[Base32Constants.EncodedLength];
-        var writtenBytesCount = Encoding.UTF8.GetBytes(input, inputBytes);
-        if (writtenBytesCount != Base32Constants.EncodedLength)
-            return false;
+        return IsValidAlphabet(input);
+    }
 
-        return AreValidBytes(inputBytes);
+    private static bool IsValidAlphabet(ReadOnlySpan<char> chars) =>
+        IsValidChar(chars[0])
+        && IsValidChar(chars[1])
+        && IsValidChar(chars[2])
+        && IsValidChar(chars[3])
+        && IsValidChar(chars[4])
+        && IsValidChar(chars[5])
+        && IsValidChar(chars[6])
+        && IsValidChar(chars[7])
+        && IsValidChar(chars[8])
+        && IsValidChar(chars[9])
+        && IsValidChar(chars[10])
+        && IsValidChar(chars[11])
+        && IsValidChar(chars[12])
+        && IsValidChar(chars[13])
+        && IsValidChar(chars[14])
+        && IsValidChar(chars[15])
+        && IsValidChar(chars[16])
+        && IsValidChar(chars[17])
+        && IsValidChar(chars[18])
+        && IsValidChar(chars[19])
+        && IsValidChar(chars[20])
+        && IsValidChar(chars[21])
+        && IsValidChar(chars[22])
+        && IsValidChar(chars[23])
+        && IsValidChar(chars[24])
+        && IsValidChar(chars[25]);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsValidChar(char c)
+    {
+        if (c >= '0' && c <= '9')
+            return true;
+        
+        return c is >= 'a' and <= 'h'
+        or >= 'j' and <= 'k'
+        or >= 'm' and <= 'n'
+        or >= 'p' and <= 't'
+        or >= 'v' and <= 'z';
     }
 
     private static bool AreValidBytes(ReadOnlySpan<byte> bytes)
