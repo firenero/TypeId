@@ -5,6 +5,12 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>FastIDs.TypeId.Serialization.SystemTextJson</RootNamespace>
+
+        <PackageId>FastIDs.TypeId.Serialization.SystemTextJson</PackageId>
+        <Description>System.Text.Json serialization helpers for FastIDs.TypeId</Description>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageTags>dotnet,c#,json</PackageTags>
+        <RepositoryUrl>https://github.com/firenero/TypeId</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
