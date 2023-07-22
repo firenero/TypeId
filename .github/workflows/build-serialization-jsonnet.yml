@@ -34,7 +34,7 @@ jobs:
     - name: Build
       run: dotnet build --no-restore --configuration Release ./TypeId.Serialization.JsonNet/TypeId.Serialization.JsonNet.csproj
     - name: Test
-      run: dotnet test --no-restore --no-build --verbosity normal --configuration Release ./TypeId.Serialization.JsonNet.Tests/TypeId.Serialization.JsonNet.Tests.csproj
+      run: dotnet test --configuration Release ./TypeId.Serialization.JsonNet.Tests/TypeId.Serialization.JsonNet.Tests.csproj
     - name: Publish to NuGet
       if: startsWith(github.ref, 'refs/tags/')
       run: |

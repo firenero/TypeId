@@ -34,7 +34,7 @@ jobs:
     - name: Build
       run: dotnet build --no-restore --configuration Release
     - name: Test
-      run: dotnet test --no-restore --no-build --verbosity normal --configuration Release
+      run: dotnet test --no-restore --no-build --configuration Release
     - name: Publish to NuGet
       if: startsWith(github.ref, 'refs/tags/')
       run: |
