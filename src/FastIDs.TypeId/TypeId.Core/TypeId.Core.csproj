@@ -25,7 +25,7 @@
     </ItemGroup>
 
     <PropertyGroup>
-        <MinVerTagPrefix>typeid-v</MinVerTagPrefix>
+        <MinVerTagPrefix>typeid-core-v</MinVerTagPrefix>
         <MinVerIgnoreHeight>true</MinVerIgnoreHeight>
     </PropertyGroup>
 
