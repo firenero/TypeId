@@ -10,18 +10,32 @@
 
         <PackageId>FastIDs.TypeId</PackageId>
         <Title>High-performance TypeId implementation</Title>
-        <Description>High-performance TypeId .NET library</Description>
+        <Description>
+            High-performance dotnet implementation of type-safe, K-sortable, globally unique identifier inspired by Stripe IDs
+        </Description>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-        <PackageTags>dotnet,c#</PackageTags>
-        <RepositoryUrl>https://github.com/firenero/TypeId</RepositoryUrl>
+        <PackageTags>guid,uuid,id,typeid,type-id,uuid7,identifiers</PackageTags>
+        <PackageProjectUrl>https://github.com/firenero/TypeId</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Authors>Mykhailo Matviiv</Authors>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <Copyright>Copyright (c) Mykhailo Matviiv 2023.</Copyright>
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
       <PackageReference Include="MinVer" Version="4.3.0">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
       <PackageReference Include="UUIDNext" Version="2.0.2" />
+      
+      <None Include="../../../README.md" Pack="true" PackagePath="\" />  
     </ItemGroup>
 
     <PropertyGroup>
