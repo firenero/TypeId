@@ -37,6 +37,7 @@ public static class TestCases
         new("préfix_00000000000000000000000000") { TestName = "The prefix can only have ascii letters" },
         new("  prefix_00000000000000000000000000") { TestName = "The prefix can't have any spaces" },
         new("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl_00000000000000000000000000") { TestName = "The prefix can't be 64 characters, it needs to be 63 characters or less" },
+        new("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghij0_00000000000000000000000000") { TestName = "The long prefix can't have numbers" },
         new("_00000000000000000000000000") { TestName = "If the prefix is empty, the separator should not be there" },
         new("_") { TestName = "A separator by itself should not be treated as the empty string" },
         new("prefix_1234567890123456789012345") { TestName = "The suffix can't be 25 characters, it needs to be exactly 26 characters" },
