@@ -1,18 +1,18 @@
-using System.Text.Json;
 using FluentAssertions;
+using Newtonsoft.Json;
 
-namespace FastIDs.TypeId.Serialization.SystemTextJson.Tests;
+namespace FastIDs.TypeId.Serialization.JsonNet.Tests;
 
 [TestFixture]
-public class SerializationTests
+public class TypeIdSerializationTests
 {
-    private readonly JsonSerializerOptions _options = new JsonSerializerOptions().ConfigureForTypeId();
+    private readonly JsonSerializerSettings _settings = new JsonSerializerSettings().ConfigureForTypeId();
     private const string TypeIdStr = "type_01h455vb4pex5vsknk084sn02q";
 
     [Test]
     public void TypeId_Plain_Serialized()
     {
-        var json = JsonSerializer.Serialize(TypeId.Parse(TypeIdStr), _options);
+        var json = JsonConvert.SerializeObject(TypeId.Parse(TypeIdStr), _settings);
 
         json.Should().Be($"\"{TypeIdStr}\"");
     }
@@ -21,7 +21,7 @@ public class SerializationTests
     public void TypeId_NestedProperty_Serialized()
     {
         var obj = new TypeIdContainer(TypeId.Parse(TypeIdStr), 42);
-        var json = JsonSerializer.Serialize(obj, _options);
+        var json = JsonConvert.SerializeObject(obj, _settings);
 
         json.Should().Be($"{{\"Id\":\"{TypeIdStr}\",\"Value\":42}}");
     }
@@ -30,7 +30,7 @@ public class SerializationTests
     public void TypeId_Collection_Serialized()
     {
         var obj = new TypeIdArrayContainer(new[] { TypeId.Parse(TypeIdStr), TypeId.Parse("prefix_0123456789abcdefghjkmnpqrs") });
-        var json = JsonSerializer.Serialize(obj, _options);
+        var json = JsonConvert.SerializeObject(obj, _settings);
 
         json.Should().Be($"{{\"Items\":[\"{TypeIdStr}\",\"prefix_0123456789abcdefghjkmnpqrs\"]}}");
     }
@@ -38,7 +38,7 @@ public class SerializationTests
     [Test]
     public void TypeId_Plain_Deserialized()
     {
-        var typeId = JsonSerializer.Deserialize<TypeId>($"\"{TypeIdStr}\"", _options);
+        var typeId = JsonConvert.DeserializeObject<TypeId>($"\"{TypeIdStr}\"", _settings);
 
         typeId.Should().Be(TypeId.Parse(TypeIdStr));
     }
@@ -46,7 +46,7 @@ public class SerializationTests
     [Test]
     public void TypeId_NestedProperty_Deserialized()
     {
-        var obj = JsonSerializer.Deserialize<TypeIdContainer>($"{{\"Id\":\"{TypeIdStr}\",\"Value\":42}}", _options);
+        var obj = JsonConvert.DeserializeObject<TypeIdContainer>($"{{\"Id\":\"{TypeIdStr}\",\"Value\":42}}", _settings);
 
         obj.Should().Be(new TypeIdContainer(TypeId.Parse(TypeIdStr), 42));
     }
@@ -54,7 +54,7 @@ public class SerializationTests
     [Test]
     public void TypeId_Collection_Deserialized()
     {
-        var obj = JsonSerializer.Deserialize<TypeIdArrayContainer>($"{{\"Items\":[\"{TypeIdStr}\",\"prefix_0123456789abcdefghjkmnpqrs\"]}}", _options);
+        var obj = JsonConvert.DeserializeObject<TypeIdArrayContainer>($"{{\"Items\":[\"{TypeIdStr}\",\"prefix_0123456789abcdefghjkmnpqrs\"]}}", _settings);
 
         obj.Should().BeEquivalentTo(new TypeIdArrayContainer(new[] { TypeId.Parse(TypeIdStr), TypeId.Parse("prefix_0123456789abcdefghjkmnpqrs") }));
     }

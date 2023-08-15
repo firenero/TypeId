@@ -13,6 +13,13 @@ public class TypeIdDecodedConverter : JsonConverter<TypeIdDecoded>
 
     public override void Write(Utf8JsonWriter writer, TypeIdDecoded value, JsonSerializerOptions options)
     {
-        writer.WriteStringValue(value.ToString());
+        var totalLength = value.Type.Length + 1 + 26;
+        Span<char> buffer = stackalloc char[totalLength];
+        
+        value.Type.AsSpan().CopyTo(buffer);
+        buffer[value.Type.Length] = '_';
+        value.GetSuffix(buffer[(value.Type.Length + 1)..]);
+
+        writer.WriteStringValue(buffer);
     }
 }
