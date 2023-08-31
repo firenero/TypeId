@@ -210,3 +210,24 @@ Get the creation timestamp (part of the UUIDv7 component):
 ```csharp
 DateTimeOffset timestamp = typeIdDecoded.GetTimestamp();
 ```
+
+### Json Serialization
+
+NuGet packages are available for working with JSON. 
+
+  - [System.Text.Json](https://www.nuget.org/packages/FastIDs.TypeId.Serialization.SystemTextJson)
+  - [Json.Net](https://www.nuget.org/packages/FastIDs.TypeId.Serialization.SystemTextJson)
+
+You can use the extension method `ConfigureForTypeId` on the `JsonSerializerSettings` type for `Json.Net` or on the `JsonSerializerOptions` type for `System.Text.Json` to automatically serialize a `TypeId` or a `TypeIdDecoded` to a string.
+
+If you are using [SwashBuckle](https://github.com/domaindrivendev/Swashbuckle.AspNetCore), you will need to configure your service as follows:
+
+```cs
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "api", Version = "v1" });
+
+    c.MapType(typeof(TypeId), () => new OpenApiSchema { Type = "string", Example = new OpenApiString("prefix_01h93ech7jf5ktdwg6ye383x34") });
+    c.MapType(typeof(TypeIdDecoded), () => new OpenApiSchema { Type = "string", Example = new OpenApiString("prefix_01h93ech7jf5ktdwg6ye383x34") });
+});
+```
