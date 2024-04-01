@@ -1,31 +1,45 @@
-﻿using System.Numerics;
-using System.Runtime.CompilerServices;
+﻿using System.Buffers;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Text;
 using BenchmarkDotNet.Attributes;
 
 namespace FastIDs.TypeId.Benchmarks.InternalBenchmarks;
 
 [MemoryDiagnoser]
+[MarkdownExporter]
+[MarkdownExporterAttribute.Default]
+[MarkdownExporterAttribute.GitHub]
 public class TypeAlphabetValidationBenchmarks
 {
-    [Params(3, 6, 10, 16, 30, 63)]
+    [Params(3, 6, 8, 14, 30, 63)]
     public int PrefixLength;
     
-    private string _prefix = "";
+    private string[] _prefixes = [];
     
     private const string AlphabetStr = "abcdefghijklmnopqrstuvwxyz";
-    private readonly HashSet<char> _alphabetSet = new(AlphabetStr);
-    private const int LoopIterationsCount = 100_000;
+    private readonly SearchValues<char> _searchValues = SearchValues.Create(AlphabetStr);
     private const int UnrollValue = 4;
 
     [GlobalSetup]
     public void Setup()
     {
-        var random = new Random(42);
-        _prefix = "";
-        for (var i = 0; i < PrefixLength; i++)
+        var random = new Random();
+        
+        const int count = 100_000;
+        _prefixes = new string[count];
+        var sb = new StringBuilder(PrefixLength);
+        
+        for (var i = 0; i < count; i++)
         {
-            _prefix += (char) random.Next('a', 'z');
+            sb.Clear();
+            
+            for (var j = 0; j < PrefixLength; j++)
+            {
+                sb.Append((char)random.Next('a', 'z'));
+            }
+
+            _prefixes[i] = sb.ToString();
         }
     }
     
@@ -33,9 +47,9 @@ public class TypeAlphabetValidationBenchmarks
     public bool CharCheck()
     {
         var isValid = false;
-        for (var i = 0; i < LoopIterationsCount; i++)
+        foreach (var prefix in _prefixes)
         {
-            foreach (var c in _prefix)
+            foreach (var c in prefix.AsSpan())
             {
                 isValid &= c is >= 'a' and <= 'z';
             }
@@ -45,68 +59,72 @@ public class TypeAlphabetValidationBenchmarks
     }
     
     [Benchmark]
+    public bool CharCheckAscii()
+    {
+        var isValid = false;
+        foreach (var prefix in _prefixes)
+        {
+            foreach (var c in prefix.AsSpan())
+            {
+                isValid &= char.IsAsciiLetterLower(c);
+            }
+        }
+
+        return isValid;
+    }
+
+    [Benchmark]
+    public bool SearchValuesCheck()
+    {
+        var isValid = false;
+        foreach (var prefix in _prefixes)
+        {
+            foreach (var c in prefix.AsSpan())
+            {
+                isValid &= _searchValues.Contains(c);
+            }
+        }
+    
+        return isValid;
+    }
+    
+    [Benchmark]
+    public bool SearchValuesInRangeCheck()
+    {
+        var isValid = false;
+        foreach (var prefix in _prefixes)
+        {
+            isValid &= !prefix.AsSpan().ContainsAnyExceptInRange('a', 'z');
+        }
+    
+        return isValid;
+    }
+
+    [Benchmark]
     public bool Simd()
     {
         var isValid = false;
-        for (var i = 0; i < LoopIterationsCount; i++)
+        foreach (var prefix in _prefixes)
         {
             var lower = new Vector<short>((short)'a');
             var higher = new Vector<short>((short)'z');
-
-            var shorts = MemoryMarshal.Cast<char, short>(_prefix.AsSpan());
+    
+            var shorts = MemoryMarshal.Cast<char, short>(prefix.AsSpan());
             
             for (var j = 0; j < shorts.Length; j += Vector<short>.Count)
             {
                 var span = Vector<short>.Count < shorts.Length - j
                     ? shorts.Slice(j, Vector<short>.Count)
                     : shorts[^Vector<short>.Count..];
-
+    
                 var curVector = new Vector<short>(span);
-
+    
                 var isGreater = Vector.GreaterThanOrEqualAll(curVector, lower);
                 var isLower = Vector.LessThanOrEqualAll(curVector, higher);
                 isValid &= isGreater && isLower;
             }
         }
-
-        return isValid;
-    }
     
-    [Benchmark]
-    public bool CharCheckUnroll()
-    {
-        var isValid = false;
-        for (var i = 0; i < LoopIterationsCount; i++)
-        {
-            if (_prefix.Length < UnrollValue)
-            {
-                foreach (var c in _prefix)
-                {
-                    isValid &= c is >= 'a' and <= 'z';
-                }
-            }
-            else
-            {
-                var j = 0;
-                ref var prefixStart = ref MemoryMarshal.GetReference(_prefix.AsSpan());
-                
-                // unroll loop
-                for (; j + UnrollValue < _prefix.Length; j += UnrollValue)
-                {
-                    isValid &= Unsafe.Add(ref prefixStart, j) is >= 'a' and <= 'z';
-                    isValid &= Unsafe.Add(ref prefixStart, j + 1) is >= 'a' and <= 'z';
-                    isValid &= Unsafe.Add(ref prefixStart, j + 2) is >= 'a' and <= 'z';
-                    isValid &= Unsafe.Add(ref prefixStart, j + 3) is >= 'a' and <= 'z';
-                }
-                
-                for (; j < _prefix.Length; j++)
-                {
-                    isValid &= Unsafe.Add(ref prefixStart, j) is >= 'a' and <= 'z';
-                }
-            }
-            
-        }
-
         return isValid;
     }
 }
