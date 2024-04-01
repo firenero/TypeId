@@ -6,7 +6,7 @@ using BenchmarkDotNet.Attributes;
 namespace FastIDs.TypeId.Benchmarks.InternalBenchmarks;
 
 [MemoryDiagnoser]
-public class AlphabetValidationBenchmarks
+public class TypeAlphabetValidationBenchmarks
 {
     [Params(3, 6, 10, 16, 30, 63)]
     public int PrefixLength;

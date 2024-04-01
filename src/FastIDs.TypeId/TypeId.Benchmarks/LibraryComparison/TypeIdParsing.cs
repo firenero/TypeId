@@ -6,6 +6,7 @@ namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 [MemoryDiagnoser]
 [MarkdownExporter]
 [MarkdownExporterAttribute.Default]
+[MarkdownExporterAttribute.GitHub]
 public class TypeIdParsing
 {
     [Params(0, 5, 10, 30, 63)]
