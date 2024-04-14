@@ -17,6 +17,7 @@ public class GenerationTests
 
     [TestCase("prefix")]
     [TestCase("type")]
+    [TestCase("pre_fix")]
     [TestCase("")]
     public void New_WithType_TypeIdCreated(string type)
     {
@@ -40,13 +41,12 @@ public class GenerationTests
         act.Should().Throw<FormatException>();
     }
 
-    private static TestCaseData[] InvalidTypes => new[]
-    {
-        new TestCaseData("PREFIX") { TestName = "Type can't have any uppercase letters" },
-        new TestCaseData("pre_fix") { TestName = "Type can't have any underscores" },
-        new TestCaseData("pre.fix") { TestName = "Type can't have any special characters" },
-        new TestCaseData("pre fix") { TestName = "Type can't have any spaces" },
-        new TestCaseData("préfix") { TestName = "Type can't have any non-ASCII characters" },
-        new TestCaseData("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl") { TestName = "Type can't have have more than 63 characters" },
-    };
+    private static TestCaseData[] InvalidTypes =>
+    [
+        new("PREFIX") { TestName = "Type can't have any uppercase letters" },
+        new("pre.fix") { TestName = "Type can't have any special characters" },
+        new("pre fix") { TestName = "Type can't have any spaces" },
+        new("préfix") { TestName = "Type can't have any non-ASCII characters" },
+        new("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl") { TestName = "Type can't have have more than 63 characters" }
+    ];
 }
