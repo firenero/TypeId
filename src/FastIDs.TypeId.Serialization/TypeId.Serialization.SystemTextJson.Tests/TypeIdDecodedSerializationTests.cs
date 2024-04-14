@@ -16,7 +16,7 @@ public class TypeIdDecodedSerializationTests
 
         json.Should().Be($"\"{TypeIdStr}\"");
     }
-    
+
     [Test]
     public void TypeId_NestedProperty_Serialized()
     {
@@ -42,7 +42,7 @@ public class TypeIdDecodedSerializationTests
 
         typeId.Should().Be(TypeId.Parse(TypeIdStr).Decode());
     }
-    
+
     [Test]
     public void TypeId_NestedProperty_Deserialized()
     {
@@ -57,6 +57,24 @@ public class TypeIdDecodedSerializationTests
         var obj = JsonSerializer.Deserialize<TypeIdDecodedArrayContainer>($"{{\"Items\":[\"{TypeIdStr}\",\"prefix_0123456789abcdefghjkmnpqrs\"]}}", _options);
 
         obj.Should().BeEquivalentTo(new TypeIdDecodedArrayContainer(new[] { TypeId.Parse(TypeIdStr).Decode(), TypeId.Parse("prefix_0123456789abcdefghjkmnpqrs").Decode() }));
+    }
+
+    [Test]
+    public void TypeId_DictionaryKey_Serialized()
+    {
+        var obj = new Dictionary<TypeIdDecoded, string> { { TypeId.Parse(TypeIdStr).Decode(), "Test" } };
+
+        var json = JsonSerializer.Serialize(obj, _options);
+
+        json.Should().Be($"{{\"{TypeIdStr}\":\"Test\"}}");
+    }
+
+    [Test]
+    public void TypeId_DictionaryKey_DeSerialized()
+    {
+        var obj = JsonSerializer.Deserialize<Dictionary<TypeIdDecoded, string>>($"{{\"{TypeIdStr}\":\"Test\"}}", _options);
+
+        obj.Should().BeEquivalentTo(new Dictionary<TypeIdDecoded, string> { { TypeId.Parse(TypeIdStr).Decode(), "Test" } });
     }
 
     private record TypeIdDecodedContainer(TypeIdDecoded Id, int Value);
