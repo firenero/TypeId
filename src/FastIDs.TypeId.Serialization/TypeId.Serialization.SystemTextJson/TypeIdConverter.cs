@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace FastIDs.TypeId.Serialization.SystemTextJson;
@@ -17,7 +16,7 @@ public class TypeIdConverter : JsonConverter<TypeId>
         writer.WriteStringValue(value.ToString());
     }
 
-    public override void WriteAsPropertyName(Utf8JsonWriter writer, [DisallowNull] TypeId value, JsonSerializerOptions options)
+    public override void WriteAsPropertyName(Utf8JsonWriter writer, TypeId value, JsonSerializerOptions options)
     {
         writer.WritePropertyName(value.ToString());
     }

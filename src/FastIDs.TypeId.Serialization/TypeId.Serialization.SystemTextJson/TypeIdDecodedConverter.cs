@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace FastIDs.TypeId.Serialization.SystemTextJson;
@@ -26,7 +25,7 @@ public class TypeIdDecodedConverter : JsonConverter<TypeIdDecoded>
         return ReadTypeId(ref reader);
     }
 
-    public override void WriteAsPropertyName(Utf8JsonWriter writer, [DisallowNull] TypeIdDecoded value, JsonSerializerOptions options)
+    public override void WriteAsPropertyName(Utf8JsonWriter writer, TypeIdDecoded value, JsonSerializerOptions options)
     {
         var totalLength = value.Type.Length + 1 + 26;
         Span<char> buffer = stackalloc char[totalLength];
@@ -42,7 +41,7 @@ public class TypeIdDecodedConverter : JsonConverter<TypeIdDecoded>
         return val is not null ? TypeId.Parse(val).Decode() : default;
     }
 
-    private static void CopyValueToBuffer(TypeIdDecoded value, Span<char> buffer)
+    private static void CopyValueToBuffer(in TypeIdDecoded value, Span<char> buffer)
     {
         value.Type.AsSpan().CopyTo(buffer);
         buffer[value.Type.Length] = '_';
