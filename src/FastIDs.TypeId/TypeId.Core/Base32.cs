@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text;
+﻿using System.Text;
 
 namespace FastIDs.TypeId;
 
@@ -91,75 +90,14 @@ internal static class Base32
         return IsValidAlphabet(input);
     }
 
-    private static bool IsValidAlphabet(ReadOnlySpan<char> chars) =>
-        IsValidChar(chars[0])
-        && IsValidChar(chars[1])
-        && IsValidChar(chars[2])
-        && IsValidChar(chars[3])
-        && IsValidChar(chars[4])
-        && IsValidChar(chars[5])
-        && IsValidChar(chars[6])
-        && IsValidChar(chars[7])
-        && IsValidChar(chars[8])
-        && IsValidChar(chars[9])
-        && IsValidChar(chars[10])
-        && IsValidChar(chars[11])
-        && IsValidChar(chars[12])
-        && IsValidChar(chars[13])
-        && IsValidChar(chars[14])
-        && IsValidChar(chars[15])
-        && IsValidChar(chars[16])
-        && IsValidChar(chars[17])
-        && IsValidChar(chars[18])
-        && IsValidChar(chars[19])
-        && IsValidChar(chars[20])
-        && IsValidChar(chars[21])
-        && IsValidChar(chars[22])
-        && IsValidChar(chars[23])
-        && IsValidChar(chars[24])
-        && IsValidChar(chars[25]);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsValidChar(char c)
+    private static bool IsValidAlphabet(ReadOnlySpan<char> chars)
     {
-        if (c >= '0' && c <= '9')
-            return true;
-        
-        return c is >= 'a' and <= 'h'
-        or >= 'j' and <= 'k'
-        or >= 'm' and <= 'n'
-        or >= 'p' and <= 't'
-        or >= 'v' and <= 'z';
-    }
+        foreach (var c in chars)
+        {
+            if (!Base32Constants.AlphabetValues.Contains(c))
+                return false;
+        }
 
-    private static bool AreValidBytes(ReadOnlySpan<byte> bytes)
-    {
-        var dec = Base32Constants.DecodingTable;
-        return dec[bytes[0]] != 0xFF
-               && dec[bytes[1]] != 0xFF
-               && dec[bytes[2]] != 0xFF
-               && dec[bytes[3]] != 0xFF
-               && dec[bytes[4]] != 0xFF
-               && dec[bytes[5]] != 0xFF
-               && dec[bytes[6]] != 0xFF
-               && dec[bytes[7]] != 0xFF
-               && dec[bytes[8]] != 0xFF
-               && dec[bytes[9]] != 0xFF
-               && dec[bytes[10]] != 0xFF
-               && dec[bytes[11]] != 0xFF
-               && dec[bytes[12]] != 0xFF
-               && dec[bytes[13]] != 0xFF
-               && dec[bytes[14]] != 0xFF
-               && dec[bytes[15]] != 0xFF
-               && dec[bytes[16]] != 0xFF
-               && dec[bytes[17]] != 0xFF
-               && dec[bytes[18]] != 0xFF
-               && dec[bytes[19]] != 0xFF
-               && dec[bytes[20]] != 0xFF
-               && dec[bytes[21]] != 0xFF
-               && dec[bytes[22]] != 0xFF
-               && dec[bytes[23]] != 0xFF
-               && dec[bytes[24]] != 0xFF
-               && dec[bytes[25]] != 0xFF;
+        return true;
     }
 }

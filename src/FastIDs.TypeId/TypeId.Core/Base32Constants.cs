@@ -1,8 +1,12 @@
-﻿namespace FastIDs.TypeId;
+﻿using System.Buffers;
+
+namespace FastIDs.TypeId;
 
 internal static class Base32Constants
 { 
     public const string Alphabet = "0123456789abcdefghjkmnpqrstvwxyz";
+    
+    public static readonly SearchValues<char> AlphabetValues = SearchValues.Create(Alphabet);
     
     public const int DecodedLength = 16;
     
