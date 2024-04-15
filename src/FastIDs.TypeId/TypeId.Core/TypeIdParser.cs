@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -7,6 +8,7 @@ namespace FastIDs.TypeId;
 
 internal static class TypeIdParser
 {
+    private static readonly SearchValues<char> Alphabet = SearchValues.Create("_abcdefghijklmnopqrstuvwxyz");
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void FormatUuidBytes(Span<byte> bytes)
     {
@@ -22,21 +24,47 @@ internal static class TypeIdParser
         (bytes[6], bytes[7]) = (bytes[7], bytes[6]);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool ValidateTypeAlphabet(ReadOnlySpan<char> type)
+    public static TypeError ValidateType(ReadOnlySpan<char> type)
     {
+        if (type.Length == 0)
+            return TypeError.None;
+        
+        if (type[0] == '_')
+            return TypeError.StartsWithUnderscore;
+        if (type[^1] == '_')
+            return TypeError.EndsWithUnderscore;
+        
         // Vectorized version is faster for strings with length >= 8.
         const int vectorizedThreshold = 8;
         if (Vector128.IsHardwareAccelerated && type.Length >= vectorizedThreshold)
-            return !type.ContainsAnyExceptInRange('a', 'z');
+            return type.ContainsAnyExcept(Alphabet) ? TypeError.InvalidChar : TypeError.None;
         
         // Fallback to scalar version for strings with length < 8 or when hardware intrinsics are not available.
         foreach (var c in type)
         {
-            if (!char.IsAsciiLetterLower(c))
-                return false;
+            var isValidChar = c is >= 'a' and <= 'z' or '_';
+            if (!isValidChar)
+                return TypeError.InvalidChar;
         }
 
-        return true;
+        return TypeError.None;
     }
+
+    public enum TypeError
+    {
+        None,
+        StartsWithUnderscore,
+        EndsWithUnderscore,
+        InvalidChar,
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string ToErrorMessage(this TypeError error) => error switch
+    {
+        TypeError.None => "",
+        TypeError.StartsWithUnderscore => "Type can't start with an underscore.",
+        TypeError.EndsWithUnderscore => "Type can't end with an underscore.",
+        TypeError.InvalidChar => "Type must contain only lowercase letters and underscores.",
+        _ => "Unknown type error."
+    };
 }

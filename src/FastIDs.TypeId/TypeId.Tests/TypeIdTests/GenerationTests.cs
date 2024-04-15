@@ -15,10 +15,7 @@ public class GenerationTests
         typeId.ToString().Should().Be(typeIdStr);
     }
 
-    [TestCase("prefix")]
-    [TestCase("type")]
-    [TestCase("pre_fix")]
-    [TestCase("")]
+    [TestCaseSource(nameof(ValidTypes))]
     public void New_WithType_TypeIdCreated(string type)
     {
         var typeId = TypeId.New(type);
@@ -41,12 +38,21 @@ public class GenerationTests
         act.Should().Throw<FormatException>();
     }
 
+    private static TestCaseData[] ValidTypes =>
+    [
+        new("prefix") { TestName = "Lowercase letters type" },
+        new("pre_fix") { TestName = "Lowercase letters with underscore type" },
+        new("") { TestName = "Empty type" },
+    ];
+
     private static TestCaseData[] InvalidTypes =>
     [
         new("PREFIX") { TestName = "Type can't have any uppercase letters" },
         new("pre.fix") { TestName = "Type can't have any special characters" },
         new("pre fix") { TestName = "Type can't have any spaces" },
         new("préfix") { TestName = "Type can't have any non-ASCII characters" },
-        new("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl") { TestName = "Type can't have have more than 63 characters" }
+        new("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl") { TestName = "Type can't have have more than 63 characters" },
+        new("_prefix") { TestName = "The prefix can't start with an underscore" },
+        new("prefix_") { TestName = "The prefix can't end with an underscore" },
     ];
 }
