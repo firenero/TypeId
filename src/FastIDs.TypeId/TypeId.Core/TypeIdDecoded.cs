@@ -139,8 +139,9 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>
     {
         if (type.Length > TypeIdConstants.MaxTypeLength)
             throw new FormatException($"Type can be at most {TypeIdConstants.MaxTypeLength} characters long.");
-        if (!TypeIdParser.ValidateTypeAlphabet(type))
-            throw new FormatException("Type must contain only lowercase letters.");
+        var typeError = TypeIdParser.ValidateType(type);
+        if (typeError is not TypeIdParser.TypeError.None)
+            throw new FormatException(typeError.ToErrorMessage());
 
         return new TypeIdDecoded(type, uuidV7);
     }

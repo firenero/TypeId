@@ -17,7 +17,7 @@ public class TypeAlphabetValidationBenchmarks
     
     private string[] _prefixes = [];
     
-    private const string AlphabetStr = "abcdefghijklmnopqrstuvwxyz";
+    private const string AlphabetStr = "_abcdefghijklmnopqrstuvwxyz";
     private readonly SearchValues<char> _searchValues = SearchValues.Create(AlphabetStr);
     private const int UnrollValue = 4;
 
@@ -33,10 +33,13 @@ public class TypeAlphabetValidationBenchmarks
         for (var i = 0; i < count; i++)
         {
             sb.Clear();
-            
+
             for (var j = 0; j < PrefixLength; j++)
             {
-                sb.Append((char)random.Next('a', 'z'));
+                if (j == PrefixLength / 2)
+                    sb.Append('_');
+                else
+                    sb.Append((char)random.Next('a', 'z'));
             }
 
             _prefixes[i] = sb.ToString();
@@ -51,7 +54,7 @@ public class TypeAlphabetValidationBenchmarks
         {
             foreach (var c in prefix.AsSpan())
             {
-                isValid &= c is >= 'a' and <= 'z';
+                isValid &= c is '_' or >= 'a' and <= 'z';
             }
         }
 
@@ -66,7 +69,7 @@ public class TypeAlphabetValidationBenchmarks
         {
             foreach (var c in prefix.AsSpan())
             {
-                isValid &= char.IsAsciiLetterLower(c);
+                isValid &= char.IsAsciiLetterLower(c) || c == '_';
             }
         }
 
@@ -89,40 +92,25 @@ public class TypeAlphabetValidationBenchmarks
     }
     
     [Benchmark]
-    public bool SearchValuesInRangeCheck()
+    public bool SearchValuesContainsAny()
     {
         var isValid = false;
         foreach (var prefix in _prefixes)
         {
-            isValid &= !prefix.AsSpan().ContainsAnyExceptInRange('a', 'z');
+            isValid &= prefix.AsSpan().ContainsAnyExcept(_searchValues);
         }
     
         return isValid;
     }
-
+    
     [Benchmark]
-    public bool Simd()
+    public bool InRangeCheck()
     {
         var isValid = false;
         foreach (var prefix in _prefixes)
         {
-            var lower = new Vector<short>((short)'a');
-            var higher = new Vector<short>((short)'z');
-    
-            var shorts = MemoryMarshal.Cast<char, short>(prefix.AsSpan());
-            
-            for (var j = 0; j < shorts.Length; j += Vector<short>.Count)
-            {
-                var span = Vector<short>.Count < shorts.Length - j
-                    ? shorts.Slice(j, Vector<short>.Count)
-                    : shorts[^Vector<short>.Count..];
-    
-                var curVector = new Vector<short>(span);
-    
-                var isGreater = Vector.GreaterThanOrEqualAll(curVector, lower);
-                var isLower = Vector.LessThanOrEqualAll(curVector, higher);
-                isValid &= isGreater && isLower;
-            }
+            var span = prefix.AsSpan();
+            isValid &= !span.ContainsAnyExceptInRange('_', 'z') && !span.Contains('`');
         }
     
         return isValid;

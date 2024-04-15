@@ -68,38 +68,4 @@ public class FormattingTests
 
         decoded.ToString().Should().Be(typeIdStr);
     }
-
-    // [TestCaseSource(typeof(TestCases),nameof(TestCases.WithPrefix))]
-    // public void Encoded_WithPrefix_Suffix(string typeIdStr, Guid expectedGuid, string expectedType)
-    // {
-    //     var typeId = TypeId.Parse(typeIdStr);
-    //
-    //     var suffix = typeId.Suffix.ToString();
-    //
-    //     var expectedSuffix = typeIdStr.Split('_')[1];
-    //     suffix.Should().Be(expectedSuffix);
-    // }
-    //
-    // [TestCaseSource(typeof(TestCases), nameof(TestCases.NoPrefix))]
-    // public void Encoded_NoPrefix_Suffix(string typeIdStr, Guid expectedGuid, string expectedType)
-    // {
-    //     var typeId = TypeId.Parse(typeIdStr);
-    //
-    //     var suffix = typeId.Suffix.ToString();
-    //
-    //     suffix.Should().Be(typeIdStr);
-    // }
-    
-    // [TestCaseSource(nameof(ToStringTestCases))]
-    // public void ToString_StringReturned(string typeIdString)
-    // {
-    //     var typeId = TypeId.Parse(typeIdString);
-    //
-    //     typeId.ToString().Should().Be(typeIdString);
-    // }
-    //
-    // private static TestCaseData[] ToStringTestCases => TestCases.WithPrefix
-    //     .Concat(TestCases.NoPrefix)
-    //     .Select(x => new TestCaseData(x.OriginalArguments[0]))
-    //     .ToArray();
 }

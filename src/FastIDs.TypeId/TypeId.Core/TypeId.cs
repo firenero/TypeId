@@ -150,15 +150,16 @@ public readonly struct TypeId : IEquatable<TypeId>
     /// </remarks>
     public static TypeId Parse(string input)
     {
-        var separatorIdx = input.IndexOf('_');
+        var separatorIdx = input.LastIndexOf('_');
         if (separatorIdx == 0)
             throw new FormatException("Type separator must be omitted if there is no type present.");
         if (separatorIdx > TypeIdConstants.MaxTypeLength)
             throw new FormatException($"Type can be at most {TypeIdConstants.MaxTypeLength} characters long.");
 
         var typeSpan = separatorIdx != -1 ? input.AsSpan(0, separatorIdx) : ReadOnlySpan<char>.Empty;
-        if (!TypeIdParser.ValidateTypeAlphabet(typeSpan))
-            throw new FormatException("Type must contain only lowercase letters.");
+        var typeError = TypeIdParser.ValidateType(typeSpan);
+        if (typeError is not TypeIdParser.TypeError.None)
+            throw new FormatException(typeError.ToErrorMessage());
 
         var idSpan = input.AsSpan(separatorIdx + 1);
         if (idSpan.Length != TypeIdConstants.IdLength)
@@ -169,7 +170,7 @@ public readonly struct TypeId : IEquatable<TypeId>
         if (!Base32.IsValid(idSpan))
             throw new FormatException("Id is not a valid Base32 string.");
 
-        return new TypeId(input);
+        return new(input);
     }
 
     /// <summary>
@@ -188,12 +189,12 @@ public readonly struct TypeId : IEquatable<TypeId>
     /// </remarks>
     public static bool TryParse(string input, out TypeId result)
     {
-        var separatorIdx = input.IndexOf('_');
+        var separatorIdx = input.LastIndexOf('_');
         if (separatorIdx is 0 or > TypeIdConstants.MaxTypeLength)
             return Error(out result);
-
+        
         var typeSpan = separatorIdx != -1 ? input.AsSpan(0, separatorIdx) : ReadOnlySpan<char>.Empty;
-        if (!TypeIdParser.ValidateTypeAlphabet(typeSpan))
+        if (TypeIdParser.ValidateType(typeSpan) is not TypeIdParser.TypeError.None)
             return Error(out result);
 
         var idSpan = input.AsSpan(separatorIdx + 1);
@@ -203,7 +204,7 @@ public readonly struct TypeId : IEquatable<TypeId>
         if (!Base32.IsValid(idSpan))
             return Error(out result);
 
-        result = new TypeId(input);
+        result = new(input);
         return true;
     }
 
