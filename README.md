@@ -1,4 +1,4 @@
-# TypeId
+# TypeId (Spec v0.3.0)
 
 [![NuGet Version](https://img.shields.io/nuget/v/FastIDs.TypeId)](https://www.nuget.org/packages/FastIDs.TypeId)
 
