@@ -38,6 +38,36 @@ public class FormattingTests
 
         typeId.ToString().Should().Be(typeIdStr);
     }
+    
+    [TestCaseSource(typeof(TestCases), nameof(TestCases.ValidIds))]
+    public void Encoded_ToStringFormat(string typeIdStr, Guid expectedGuid, string expectedType)
+    {
+        var typeId = TypeId.Parse(typeIdStr);
+
+        typeId.ToString("", null).Should().Be(typeIdStr);
+    }
+    
+    [TestCaseSource(typeof(TestCases), nameof(TestCases.ValidIds))]
+    public void Encoded_TryFormat(string typeIdStr, Guid expectedGuid, string expectedType)
+    {
+        var typeId = TypeId.Parse(typeIdStr);
+        
+        Span<char> formattedTypeId = stackalloc char[typeIdStr.Length + 10];
+        typeId.TryFormat(formattedTypeId, out var charsWritten, "", null).Should().BeTrue();
+
+        formattedTypeId[..charsWritten].ToString().Should().Be(typeIdStr);
+    }
+    
+    [TestCaseSource(typeof(TestCases), nameof(TestCases.ValidIds))]
+    public void Encoded_TryFormatUtf8(string typeIdStr, Guid expectedGuid, string expectedType)
+    {
+        var typeId = TypeId.Parse(typeIdStr);
+        
+        Span<byte> formattedTypeId = stackalloc byte[typeIdStr.Length + 10];
+        typeId.TryFormat(formattedTypeId, out var bytesWritten, "", null).Should().BeTrue();
+
+        Encoding.UTF8.GetString(formattedTypeId[..bytesWritten]).Should().Be(typeIdStr);
+    }
 
     [TestCaseSource(typeof(TestCases), nameof(TestCases.ValidIds))]
     public void Decoded_GetSuffix(string typeIdStr, Guid expectedGuid, string expectedType)
