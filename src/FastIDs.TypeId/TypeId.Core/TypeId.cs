@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text.Unicode;
 
 namespace FastIDs.TypeId;
 
@@ -16,7 +17,7 @@ namespace FastIDs.TypeId;
 /// </code>
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
-public readonly struct TypeId : IEquatable<TypeId>
+public readonly struct TypeId : IEquatable<TypeId>, ISpanFormattable, IUtf8SpanFormattable
 {
     private readonly string _str;
 
@@ -51,6 +52,45 @@ public readonly struct TypeId : IEquatable<TypeId>
     /// </summary>
     /// <returns>A string representation of the TypeId.</returns>
     public override string ToString() => _str;
+
+    /// <summary>
+    /// Returns a string representation of the TypeId.
+    /// </summary>
+    /// <param name="format">Format string. Can be empty.</param>
+    /// <param name="formatProvider">Format provider. Can be null.</param>
+    /// <returns>Formatted string representation of the TypeId.</returns>
+    /// <remarks>
+    /// This method ignores <paramref name="format"/> and <paramref name="formatProvider"/> parameters and outputs the same result as <see cref="ToString()"/>.
+    /// </remarks>
+    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+
+    /// <summary>
+    /// Tries to format the value of the current instance into the provided span of characters.
+    /// </summary>
+    /// <param name="destination">The span in which to write this instance's value formatted as a span of characters.</param>
+    /// <param name="charsWritten">When this method returns, contains the number of characters that were written in <paramref name="destination"/>.</param>
+    /// <param name="format">A span containing the characters that represent a standard or custom format string. Can be empty.</param>
+    /// <param name="provider">Format provider. Can be null.</param>
+    /// <returns><c>true</c> if the formatting was successful; otherwise, <c>false</c>.</returns>
+    /// <remarks>
+    /// This method ignores <paramref name="format"/> and <paramref name="provider"/> parameters.
+    /// </remarks>
+    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => 
+        destination.TryWrite($"{_str}", out charsWritten);
+
+    /// <summary>
+    /// Tries to format the value of the current instance into the provided span of bytes in UTF-8 encoding.
+    /// </summary>
+    /// <param name="utf8Destination">The span in which to write this instance's value formatted as a span of bytes in UTF-8 encoding.</param>
+    /// <param name="bytesWritten">When this method returns, contains the number of bytes that were written in <paramref name="utf8Destination"/>.</param>
+    /// <param name="format">A span containing the characters that represent a standard or custom format string. Can be empty.</param>
+    /// <param name="provider">Format provider. Can be null.</param>
+    /// <returns><c>true</c> if the formatting was successful; otherwise, <c>false</c>.</returns>
+    /// <remarks>
+    /// This method ignores <paramref name="format"/> and <paramref name="provider"/> parameters.
+    /// </remarks>
+    public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => 
+        Utf8.TryWrite(utf8Destination, $"{_str}", out bytesWritten);
 
     /// <summary>
     /// A type component of the TypeId.

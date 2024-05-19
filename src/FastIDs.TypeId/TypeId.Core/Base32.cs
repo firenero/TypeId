@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace FastIDs.TypeId;
 
@@ -6,12 +8,29 @@ internal static class Base32
 {
     public static int Encode(ReadOnlySpan<byte> bytes, Span<char> output)
     {
+        ValidateEncodeParams(bytes, output);
+
+        return EncodeImpl(bytes, output, Base32Constants.Alphabet);
+    }
+
+    public static int Encode(ReadOnlySpan<byte> bytes, Span<byte> utf8Output)
+    {
+        ValidateEncodeParams(bytes, utf8Output);
+
+        return EncodeImpl(bytes, utf8Output, Base32Constants.Utf8Alphabet);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void ValidateEncodeParams<TChar>(ReadOnlySpan<byte> bytes, Span<TChar> output) where TChar: struct, IBinaryInteger<TChar>
+    {
         if (bytes.Length != Base32Constants.DecodedLength)
             throw new FormatException($"Input must be {Base32Constants.DecodedLength} bytes long.");
         if (output.Length < Base32Constants.EncodedLength)
             throw new FormatException($"Output must be at least {Base32Constants.EncodedLength} chars long.");
-        
-        const string alpha = Base32Constants.Alphabet;
+    }
+
+    private static int EncodeImpl<TChar>(ReadOnlySpan<byte> bytes, Span<TChar> output, ReadOnlySpan<TChar> alpha) where TChar: struct, IBinaryInteger<TChar>
+    {
         // 10 byte timestamp
         output[0] = alpha[(bytes[0] & 224) >> 5];
         output[1] = alpha[bytes[0] & 31];

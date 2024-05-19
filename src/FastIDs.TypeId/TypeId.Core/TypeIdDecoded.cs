@@ -1,11 +1,12 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text.Unicode;
 using UUIDNext;
 using UUIDNext.Generator;
 
 namespace FastIDs.TypeId;
 
 [StructLayout(LayoutKind.Auto)]
-public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>
+public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattable, IUtf8SpanFormattable
 {
     /// <summary>
     /// The type part of the TypeId.
@@ -49,6 +50,16 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>
         return Base32.Encode(idBytes, output);
     }
     
+    public int GetSuffix(Span<byte> utf8Output)
+    {
+        Span<byte> idBytes = stackalloc byte[Base32Constants.DecodedLength];
+        Id.TryWriteBytes(idBytes);
+
+        TypeIdParser.FormatUuidBytes(idBytes);
+
+        return Base32.Encode(idBytes, utf8Output);
+    }
+
     /// <summary>
     /// Returns the ID generation timestamp.
     /// </summary>
@@ -79,6 +90,10 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>
     /// <returns><c>true</c> if the TypeId has the specified type; otherwise, <c>false</c>.</returns>
     public bool HasType(ReadOnlySpan<char> type) => type.Equals(Type.AsSpan(), StringComparison.Ordinal);
 
+    /// <summary>
+    /// Returns a string that represents the TypeId value.
+    /// </summary>
+    /// <returns>Formatted string.</returns>
     public override string ToString()
     {
         Span<char> suffixChars = stackalloc char[Base32Constants.EncodedLength];
@@ -87,6 +102,77 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>
         return Type.Length != 0
             ? $"{Type}_{suffixChars}"
             : suffixChars.ToString();
+    }
+
+    /// <summary>
+    /// Returns a string that represents the TypeId value.
+    /// </summary>
+    /// <param name="format">Format string. Can be empty.</param>
+    /// <param name="formatProvider">Format provider. Can be null.</param>
+    /// <returns>Formatted string.</returns>
+    /// <remarks>
+    /// This method ignores <paramref name="format"/> and <paramref name="formatProvider"/> parameters and outputs the same result as <see cref="ToString()"/>.
+    /// </remarks>
+    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+    
+    /// <summary>
+    /// Tries to format the value of the current instance into the provided span of characters.
+    /// </summary>
+    /// <param name="destination">The span in which to write this instance's value formatted as a span of characters.</param>
+    /// <param name="charsWritten">When this method returns, contains the number of characters that were written in <paramref name="destination"/>.</param>
+    /// <param name="format">A span containing the characters that represent a standard or custom format string. Can be empty.</param>
+    /// <param name="provider">Format provider. Can be null.</param>
+    /// <returns><c>true</c> if the formatting was successful; otherwise, <c>false</c>.</returns>
+    /// <remarks>
+    /// This method ignores <paramref name="format"/> and <paramref name="provider"/> parameters.
+    /// </remarks>
+    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+    {
+        charsWritten = 0;
+        if (Type.Length != 0)
+        {
+            if (!destination.TryWrite($"{Type}_", out charsWritten))
+                return false;
+        }
+
+        var suffixSpan = destination[charsWritten..];
+        if (suffixSpan.Length < Base32Constants.EncodedLength)
+            return false;
+        
+        var suffixCharsWritten = GetSuffix(suffixSpan);
+        charsWritten += suffixCharsWritten;
+
+        return true;
+    }
+
+    /// <summary>
+    /// Tries to format the value of the current instance into the provided span of bytes in UTF-8 encoding.
+    /// </summary>
+    /// <param name="utf8Destination">The span in which to write this instance's value formatted as a span of bytes in UTF-8 encoding.</param>
+    /// <param name="bytesWritten">When this method returns, contains the number of bytes that were written in <paramref name="utf8Destination"/>.</param>
+    /// <param name="format">A span containing the characters that represent a standard or custom format string. Can be empty.</param>
+    /// <param name="provider">Format provider. Can be null.</param>
+    /// <returns><c>true</c> if the formatting was successful; otherwise, <c>false</c>.</returns>
+    /// <remarks>
+    /// This method ignores <paramref name="format"/> and <paramref name="provider"/> parameters.
+    /// </remarks>
+    public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+    {
+        bytesWritten = 0;
+        if (Type.Length != 0)
+        {
+            if (!Utf8.TryWrite(utf8Destination, $"{Type}_", out bytesWritten))
+                return false;
+        }
+
+        var suffixSpan = utf8Destination[bytesWritten..];
+        if (suffixSpan.Length < Base32Constants.EncodedLength)
+            return false;
+        
+        var suffixBytesWritten = GetSuffix(suffixSpan);
+        bytesWritten += suffixBytesWritten;
+
+        return true;
     }
 
     public bool Equals(TypeIdDecoded other) => Type == other.Type && Id.Equals(other.Id);

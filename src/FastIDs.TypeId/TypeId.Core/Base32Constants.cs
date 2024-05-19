@@ -5,6 +5,8 @@ namespace FastIDs.TypeId;
 internal static class Base32Constants
 { 
     public const string Alphabet = "0123456789abcdefghjkmnpqrstvwxyz";
+
+    public static ReadOnlySpan<byte> Utf8Alphabet => "0123456789abcdefghjkmnpqrstvwxyz"u8;
     
     public static readonly SearchValues<char> AlphabetValues = SearchValues.Create(Alphabet);
     
