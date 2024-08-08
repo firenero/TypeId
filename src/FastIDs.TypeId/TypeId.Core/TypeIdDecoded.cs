@@ -67,7 +67,7 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
     /// <returns>DateTimeOffset representing the ID generation timestamp.</returns>
     public DateTimeOffset GetTimestamp()
     {
-        var (timestampMs, _) = UuidDecoder.Decode(Id);
+        var timestampMs = UuidDecoder.DecodeTimestamp(Id);
         return DateTimeOffset.FromUnixTimeMilliseconds(timestampMs);
     }
 

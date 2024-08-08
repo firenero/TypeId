@@ -19,25 +19,28 @@ internal class UuidGenerator
 
     public Guid New()
     {
-        Span<byte> bytes = stackalloc byte[16];
+        // Allocating 2 bytes more to prepend timestamp data.
+        Span<byte> buffer = stackalloc byte[18];
+        
+        // Offset bytes that are used in ID.
+        var idBytes = buffer[2..];
 
         var timestamp = GetCurrentUnixMilliseconds();
-        SetSequence(bytes[6..8], ref timestamp);
-        SetTimestamp(bytes[..6], timestamp);
-        RandomNumberGenerator.Fill(bytes[8..]);
+        SetSequence(idBytes[6..8], ref timestamp);
+        SetTimestamp(buffer[..8], timestamp); // Using full buffer because we need to account for two zero-bytes in front.
+        RandomNumberGenerator.Fill(idBytes[8..]);
 
-        return GuidConverter.CreateGuidFromBigEndianBytes(bytes);
+        return GuidConverter.CreateGuidFromBigEndianBytes(buffer);
     }
 
     // The implementation copied from DateTimeOffset.ToUnixTimeMilliseconds()
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private long GetCurrentUnixMilliseconds() => DateTime.UtcNow.Ticks / 10000L - 62135596800000L;
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void SetTimestamp(Span<byte> bytes, long unixMs)
     {
-        Span<byte> timestampBytes = stackalloc byte[8];
-        BinaryPrimitives.TryWriteInt64BigEndian(timestampBytes, unixMs);
-        timestampBytes[2..].CopyTo(bytes);
+        BinaryPrimitives.TryWriteInt64BigEndian(bytes, unixMs);
     }
 
     private void SetSequence(Span<byte> bytes, ref long timestamp)
