@@ -1,13 +1,14 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text.Unicode;
-using UUIDNext;
-using UUIDNext.Generator;
+using FastIDs.TypeId.Uuid;
 
 namespace FastIDs.TypeId;
 
 [StructLayout(LayoutKind.Auto)]
 public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattable, IUtf8SpanFormattable
 {
+    private static readonly UuidGenerator UuidGenerator = new();
+    
     /// <summary>
     /// The type part of the TypeId.
     /// </summary>
@@ -66,7 +67,7 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
     /// <returns>DateTimeOffset representing the ID generation timestamp.</returns>
     public DateTimeOffset GetTimestamp()
     {
-        var (timestampMs, _) = UuidV7Generator.Decode(Id);
+        var timestampMs = UuidDecoder.DecodeTimestamp(Id);
         return DateTimeOffset.FromUnixTimeMilliseconds(timestampMs);
     }
 
@@ -194,7 +195,7 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
     /// <remarks>
     /// This method validates the type. If you are sure that type is valid use <see cref="New(string, bool)"/> to skip type validation.
     /// </remarks>
-    public static TypeIdDecoded New(string type) => FromUuidV7(type, Uuid.NewSequential());
+    public static TypeIdDecoded New(string type) => FromUuidV7(type, UuidGenerator.New());
     
     /// <summary>
     /// Generates new TypeId with the specified type and random UUIDv7. If <paramref name="validateType"/> is false, type is not validated.
@@ -207,7 +208,7 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
     /// Use this method with <paramref name="validateType"/> set to false when you are sure that <paramref name="type"/> is valid.
     /// This method is a bit faster than <see cref="New(string)"/> (especially for longer types) because it skips type validation.
     /// </remarks>
-    public static TypeIdDecoded New(string type, bool validateType) => validateType ? New(type) : new TypeIdDecoded(type, Uuid.NewSequential());
+    public static TypeIdDecoded New(string type, bool validateType) => validateType ? New(type) : new TypeIdDecoded(type, UuidGenerator.New());
 
     /// <summary>
     /// Generates new TypeId with the specified type and UUIDv7.
