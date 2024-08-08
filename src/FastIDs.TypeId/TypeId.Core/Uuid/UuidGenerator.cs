@@ -30,7 +30,7 @@ internal class UuidGenerator
         SetTimestamp(buffer[..8], timestamp); // Using full buffer because we need to account for two zero-bytes in front.
         RandomNumberGenerator.Fill(idBytes[8..]);
 
-        return GuidConverter.CreateGuidFromBigEndianBytes(buffer);
+        return GuidConverter.CreateGuidFromBigEndianBytes(idBytes);
     }
 
     // The implementation copied from DateTimeOffset.ToUnixTimeMilliseconds()
