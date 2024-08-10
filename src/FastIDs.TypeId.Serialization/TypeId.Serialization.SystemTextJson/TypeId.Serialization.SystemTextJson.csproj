@@ -23,6 +23,11 @@
         <None Include="../../../README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
+    <PropertyGroup>
+        <AnalysisModePerformance>All</AnalysisModePerformance>
+        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    </PropertyGroup>
+
     <ItemGroup>
       <PackageReference Include="FastIDs.TypeId" Version="1.0.0" />
       <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">

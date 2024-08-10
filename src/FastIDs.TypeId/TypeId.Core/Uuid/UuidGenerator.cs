@@ -8,7 +8,7 @@ namespace FastIDs.TypeId.Uuid;
 // TypeID doesn't require any UUID implementations except UUIDv7.
 
 // All timestamps of type `long` in this class are Unix milliseconds unless stated otherwise.
-internal class UuidGenerator
+internal sealed class UuidGenerator
 {
     private const int SequenceBitSize = 7;
     private const int SequenceMaxValue = (1 << SequenceBitSize) - 1;
@@ -35,7 +35,7 @@ internal class UuidGenerator
 
     // The implementation copied from DateTimeOffset.ToUnixTimeMilliseconds()
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private long GetCurrentUnixMilliseconds() => DateTime.UtcNow.Ticks / 10000L - 62135596800000L;
+    private static long GetCurrentUnixMilliseconds() => DateTime.UtcNow.Ticks / 10000L - 62135596800000L;
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void SetTimestamp(Span<byte> bytes, long unixMs)
