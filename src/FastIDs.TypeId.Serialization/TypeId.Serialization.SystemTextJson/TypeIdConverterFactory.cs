@@ -20,7 +20,7 @@ public class TypeIdConverterFactory : JsonConverterFactory
             BindingFlags.Instance | BindingFlags.Public,
             null,
             null,
-            null) ?? throw new Exception("Could not create converter");
+            null) ?? throw new ArgumentException($"Could not create converter of type {typeToConvert}");
     }
 
     [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses",
