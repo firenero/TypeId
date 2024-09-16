@@ -39,14 +39,51 @@ public class TypeIdDecodedConverterFactory : JsonConverterFactory
                 throw new JsonException($"Cannot convert null to {typeof(T)}.");
             }
 
-            var val = reader.GetString();
-            if (!string.IsNullOrEmpty(val))
+            if (reader.TokenType == JsonTokenType.String)
             {
-                var decoded = TypeId.Parse(val).Decode();
-                return (T)(object)decoded;
-            }
+                var val = reader.GetString();
+                if (!string.IsNullOrEmpty(val))
+                {
+                    var decoded = TypeId.Parse(val).Decode();
+                    return (T)(object)decoded;
+                }
 
-            throw new JsonException($"Expected a non-null, non-empty string for {typeof(T)}.");
+                throw new JsonException($"Expected a non-null, non-empty string for {typeof(T)}.");
+            }
+            else if (reader.TokenType == JsonTokenType.StartObject)
+            {
+                // Deserialize the object representation
+                var jsonObject = JsonSerializer.Deserialize<JsonElement>(ref reader, options);
+
+                if (jsonObject.TryGetProperty("type", out var typeProperty) &&
+                    jsonObject.TryGetProperty("id", out var idProperty))
+                {
+                    var type = typeProperty.GetString();
+                    var id = idProperty.GetString();
+
+                    if (!string.IsNullOrEmpty(type) && !string.IsNullOrEmpty(id))
+                    {
+                        if (!Guid.TryParse(id, out var parsedId))
+                            throw new JsonException($"The 'id' property must be a valid UUID for {typeof(T)}.");
+                        
+                        // Create the TypeIdDecoded instance from type and id
+                        var typeId = TypeId.FromUuidV7(type, parsedId);
+                        return (T)(object)typeId;
+                    }
+                    else
+                    {
+                        throw new JsonException($"The 'type' and 'id' properties must be non-null strings for {typeof(T)}.");
+                    }
+                }
+                else
+                {
+                    throw new JsonException($"Expected properties 'type' and 'id' in the JSON object for {typeof(T)}.");
+                }
+            }
+            else
+            {
+                throw new JsonException($"Unexpected token parsing {typeof(T)}. Expected String or StartObject, got {reader.TokenType}.");
+            }
         }
 
         public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)

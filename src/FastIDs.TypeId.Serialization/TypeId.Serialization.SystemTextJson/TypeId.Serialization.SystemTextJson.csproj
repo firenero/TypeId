@@ -5,12 +5,13 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>FastIDs.TypeId.Serialization.SystemTextJson</RootNamespace>
+        <Version>1.0.2</Version>
 
-        <PackageId>FastIDs.TypeId.Serialization.SystemTextJson</PackageId>
+        <PackageId>Sublime.FastIDs.TypeId.Serialization.SystemTextJson</PackageId>
         <Description>System.Text.Json serialization helpers for FastIDs.TypeId</Description>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <PackageTags>guid,uuid,id,typeid,type-id,uuid7,identifiers,json,jsonnet,serialization</PackageTags>
-        <PackageProjectUrl>https://github.com/firenero/TypeId</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/Sublime-IT/TypeId</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Authors>Mykhailo Matviiv</Authors>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -34,16 +35,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="MinVer" Version="4.3.0">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
       <PackageReference Include="System.Text.Json" Version="6.0.0" />
     </ItemGroup>
-
-    <PropertyGroup>
-        <MinVerTagPrefix>typeid-textjson-v</MinVerTagPrefix>
-        <MinVerIgnoreHeight>true</MinVerIgnoreHeight>
-    </PropertyGroup>
 
 </Project>
