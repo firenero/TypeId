@@ -18,6 +18,15 @@ public class TypeIdSerializationTests
     }
 
     [Test]
+    public void TypeId_Plain_Null_Serialized()
+    {
+        TypeId? typeId = null;
+        var json = JsonSerializer.Serialize(typeId, _options);
+
+        json.Should().Be("null");
+    }
+
+    [Test]
     public void TypeId_NestedProperty_Serialized()
     {
         var obj = new TypeIdContainer(TypeId.Parse(TypeIdStr), 42);
@@ -27,12 +36,32 @@ public class TypeIdSerializationTests
     }
 
     [Test]
+    public void TypeId_NestedProperty_Null_Serialized()
+    {
+        var obj = new TypeIdContainer(null, 42);
+        var json = JsonSerializer.Serialize(obj, _options);
+
+        json.Should().Be($"{{\"Id\":null,\"Value\":42}}");
+    }
+
+    [Test]
     public void TypeId_Collection_Serialized()
     {
-        var obj = new TypeIdArrayContainer(new[] { TypeId.Parse(TypeIdStr), TypeId.Parse("prefix_0123456789abcdefghjkmnpqrs") });
+        var obj = new TypeIdArrayContainer(new TypeId?[]
+            { TypeId.Parse(TypeIdStr), TypeId.Parse("prefix_0123456789abcdefghjkmnpqrs") });
         var json = JsonSerializer.Serialize(obj, _options);
 
         json.Should().Be($"{{\"Items\":[\"{TypeIdStr}\",\"prefix_0123456789abcdefghjkmnpqrs\"]}}");
+    }
+
+    [Test]
+    public void TypeId_Collection_WithNull_Serialized()
+    {
+        var obj = new TypeIdArrayContainer(new TypeId?[]
+            { TypeId.Parse(TypeIdStr), null });
+        var json = JsonSerializer.Serialize(obj, _options);
+
+        json.Should().Be($"{{\"Items\":[\"{TypeIdStr}\",null]}}");
     }
 
     [Test]
@@ -44,6 +73,14 @@ public class TypeIdSerializationTests
     }
 
     [Test]
+    public void TypeId_Plain_Null_Deserialized()
+    {
+        var typeId = JsonSerializer.Deserialize<TypeId?>("null", _options);
+
+        typeId.Should().BeNull();
+    }
+
+    [Test]
     public void TypeId_NestedProperty_Deserialized()
     {
         var obj = JsonSerializer.Deserialize<TypeIdContainer>($"{{\"Id\":\"{TypeIdStr}\",\"Value\":42}}", _options);
@@ -52,21 +89,51 @@ public class TypeIdSerializationTests
     }
 
     [Test]
+    public void TypeId_NestedProperty_Null_Deserialized()
+    {
+        var obj = JsonSerializer.Deserialize<TypeIdContainer>($"{{\"Id\":null,\"Value\":42}}", _options);
+
+        obj.Should().Be(new TypeIdContainer(null, 42));
+    }
+
+    [Test]
     public void TypeId_Collection_Deserialized()
     {
-        var obj = JsonSerializer.Deserialize<TypeIdArrayContainer>($"{{\"Items\":[\"{TypeIdStr}\",\"prefix_0123456789abcdefghjkmnpqrs\"]}}", _options);
+        var obj = JsonSerializer.Deserialize<TypeIdArrayContainer>(
+            $"{{\"Items\":[\"{TypeIdStr}\",\"prefix_0123456789abcdefghjkmnpqrs\"]}}", _options);
 
-        obj.Should().BeEquivalentTo(new TypeIdArrayContainer(new[] { TypeId.Parse(TypeIdStr), TypeId.Parse("prefix_0123456789abcdefghjkmnpqrs") }));
+        obj.Should().BeEquivalentTo(new TypeIdArrayContainer(new TypeId?[]
+            { TypeId.Parse(TypeIdStr), TypeId.Parse("prefix_0123456789abcdefghjkmnpqrs") }));
+    }
+
+    [Test]
+    public void TypeId_Collection_WithNull_Deserialized()
+    {
+        var obj = JsonSerializer.Deserialize<TypeIdArrayContainer>(
+            $"{{\"Items\":[\"{TypeIdStr}\",null]}}", _options);
+
+        obj.Should().BeEquivalentTo(new TypeIdArrayContainer(new TypeId?[]
+            { TypeId.Parse(TypeIdStr), null }));
     }
 
     [Test]
     public void TypeId_DictionaryKey_Serialized()
     {
-        var obj = new Dictionary<TypeId, string> { { TypeId.Parse(TypeIdStr), "Test"} };
+        var obj = new Dictionary<TypeId, string> { { TypeId.Parse(TypeIdStr), "Test" } };
 
         var json = JsonSerializer.Serialize(obj, _options);
 
         json.Should().Be($"{{\"{TypeIdStr}\":\"Test\"}}");
+    }
+    
+    [Test]
+    public void TypeId_DictionaryValue_Null_Serialized()
+    {
+        var obj = new Dictionary<string, TypeId?> { { "Key", null } };
+
+        var json = JsonSerializer.Serialize(obj, _options);
+
+        json.Should().Be("{\"Key\":null}");
     }
 
     [Test]
@@ -77,7 +144,23 @@ public class TypeIdSerializationTests
         obj.Should().BeEquivalentTo(new Dictionary<TypeId, string> { { TypeId.Parse(TypeIdStr), "Test" } });
     }
 
-    private record TypeIdContainer(TypeId Id, int Value);
+    [Test]
+    public void TypeId_DictionaryKey_Null_DeSerialized()
+    {
+        Action act = () => JsonSerializer.Deserialize<Dictionary<TypeId, string>>($"{{null:\"Test\"}}", _options);
 
-    private record TypeIdArrayContainer(TypeId[] Items);
+        act.Should().Throw<JsonException>();
+    }
+
+    [Test]
+    public void TypeId_DictionaryValue_Null_DeSerialized()
+    {
+        var obj = JsonSerializer.Deserialize<Dictionary<string, TypeId?>>("{\"Key\":null}", _options);
+
+        obj.Should().BeEquivalentTo(new Dictionary<string, TypeId?> { { "Key", null } });
+    }
+
+    private record TypeIdContainer(TypeId? Id, int Value);
+
+    private record TypeIdArrayContainer(TypeId?[] Items);
 }

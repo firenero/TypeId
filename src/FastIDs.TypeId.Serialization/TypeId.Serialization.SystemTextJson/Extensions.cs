@@ -6,8 +6,8 @@ public static class Extensions
 {
     public static JsonSerializerOptions ConfigureForTypeId(this JsonSerializerOptions options)
     {
-        options.Converters.Add(new TypeIdConverter());
-        options.Converters.Add(new TypeIdDecodedConverter());
+        options.Converters.Add(new TypeIdConverterFactory());
+        options.Converters.Add(new TypeIdDecodedConverterFactory());
         return options;
     }
 }
