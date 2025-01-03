@@ -30,9 +30,8 @@ public class ComparisonTests
     {
         var first = TypeId.New("aaa");
         var second = TypeId.New("aaa");
-        var comparer = new UuidComparer();
 
-        var result = comparer.Compare(first.Id, second.Id);
+        var result = UuidComparer.Instance.Compare(first.Id, second.Id);
         result.Should().BeLessThan(0);
     }
     
@@ -41,9 +40,8 @@ public class ComparisonTests
     {
         var first = TypeId.New("aaa");
         var second = TypeId.New("aaa");
-        var comparer = new UuidComparer();
 
-        var result = comparer.Compare(second.Id, first.Id);
+        var result = UuidComparer.Instance.Compare(second.Id, first.Id);
         result.Should().BeGreaterThan(0);
     }
     
@@ -51,9 +49,8 @@ public class ComparisonTests
     public void UuidV7_SameTimestamps_IdsAreEqual()
     {
         var first = TypeId.New("aaa");
-        var comparer = new UuidComparer();
 
-        var result = comparer.Compare(first.Id, first.Id);
+        var result = UuidComparer.Instance.Compare(first.Id, first.Id);
         result.Should().Be(0);
     }
 }

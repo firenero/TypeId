@@ -1,10 +1,12 @@
 ﻿namespace FastIDs.TypeId.Uuid;
 
 /// <summary>
-/// Compares two UUIDv7 implementations in <see cref="Guid"/>
+/// Compares two big endian <see cref="Guid"/>
 /// </summary>
 internal class UuidComparer : IComparer<Guid>
 {
+    public static UuidComparer Instance { get; } = new();
+    
     public int Compare(Guid x, Guid y)
     {
         const int bytesCount = 16;
