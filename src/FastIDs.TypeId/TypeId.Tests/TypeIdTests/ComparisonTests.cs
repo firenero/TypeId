@@ -1,4 +1,5 @@
 ﻿using FastIDs.TypeId;
+using FastIDs.TypeId.Uuid;
 using FluentAssertions;
 
 namespace TypeIdTests.TypeIdTests;
@@ -22,5 +23,37 @@ public class ComparisonTests
         var second = TypeId.New("aaa").Encode();
 
         first.Should().BeLessThan(second);
+    }
+
+    [Test]
+    public void UuidV7_DifferentTimestamps_OlderIdIsLessThanNewer()
+    {
+        var first = TypeId.New("aaa");
+        var second = TypeId.New("aaa");
+        var comparer = new UuidComparer();
+
+        var result = comparer.Compare(first.Id, second.Id);
+        result.Should().BeLessThan(0);
+    }
+    
+    [Test]
+    public void UuidV7_DifferentTimestamps_NewerIsGreaterThanOlder()
+    {
+        var first = TypeId.New("aaa");
+        var second = TypeId.New("aaa");
+        var comparer = new UuidComparer();
+
+        var result = comparer.Compare(second.Id, first.Id);
+        result.Should().BeGreaterThan(0);
+    }
+    
+    [Test]
+    public void UuidV7_SameTimestamps_IdsAreEqual()
+    {
+        var first = TypeId.New("aaa");
+        var comparer = new UuidComparer();
+
+        var result = comparer.Compare(first.Id, first.Id);
+        result.Should().Be(0);
     }
 }
