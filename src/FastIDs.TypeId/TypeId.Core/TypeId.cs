@@ -17,7 +17,7 @@ namespace FastIDs.TypeId;
 /// </code>
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
-public readonly struct TypeId : IEquatable<TypeId>, ISpanFormattable, IUtf8SpanFormattable
+public readonly struct TypeId : IEquatable<TypeId>, ISpanFormattable, IUtf8SpanFormattable, IComparable<TypeId>, IComparable
 {
     private readonly string _str;
 
@@ -257,6 +257,18 @@ public readonly struct TypeId : IEquatable<TypeId>, ISpanFormattable, IUtf8SpanF
     public static bool operator ==(TypeId left, TypeId right) => left.Equals(right);
 
     public static bool operator !=(TypeId left, TypeId right) => !left.Equals(right);
+    
+    public int CompareTo(TypeId other) => string.Compare(_str, other._str, StringComparison.Ordinal);
+
+    public int CompareTo(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) 
+            return 1;
+        
+        return obj is TypeId other 
+            ? CompareTo(other) 
+            : throw new ArgumentException($"Object must be of type {nameof(TypeId)}");
+    }
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

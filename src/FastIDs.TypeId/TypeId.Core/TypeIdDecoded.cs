@@ -250,4 +250,26 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
     public static TypeIdDecoded FromUuidV7(string type, Guid uuidV7, bool validateType) => validateType
         ? FromUuidV7(type, uuidV7)
         : new TypeIdDecoded(type, uuidV7);
+ 
+    /// <summary>
+    /// Pre-defined comparers for <see cref="TypeIdDecoded"/>.
+    /// </summary>
+    public static class Comparers
+    {
+        /// <summary>
+        /// Compares two TypeIdDecoded instances lexicographically.
+        /// </summary>
+        /// <remarks>
+        /// TypeID components are compared in the following order: type, timestamp, and random part of the ID.
+        /// </remarks>
+        public static IComparer<TypeIdDecoded> Lex => TypeIdDecodedLexComparer.Instance;
+    
+        /// <summary>
+        /// Compares two TypeIdDecoded instances by the timestamp part of the ID.
+        /// </summary>
+        /// <remarks>
+        /// TypeID components are compared in the following order: timestamp, random part of the ID, and the type.
+        /// </remarks>
+        public static IComparer<TypeIdDecoded> Timestamp => TypeIdDecodedTimestampComparer.Instance;
+    }
 }
