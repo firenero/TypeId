@@ -1,0 +1,31 @@
+using FluentAssertions;
+using Newtonsoft.Json;
+
+namespace FastIDs.TypeId.Serialization.JsonNet.Tests;
+
+[TestFixture]
+public class TypeIdDeserializationTests
+{
+    private readonly JsonSerializerSettings _settings = new JsonSerializerSettings().ConfigureForTypeId();
+    private const string InvalidTypeIdStr = "type_01h455vb4pex5vsknk084sn02L";  // 'L' is not valid base32
+    
+    [Test]
+    public void TypeId_ParsingError_ShouldBeConvertedToJsonException()
+    {
+        // arrange
+        const string json = $$"""
+            {
+                "Id": "{{InvalidTypeIdStr}}",
+                "Value": 123 
+            }
+            """;
+
+        // act
+        var act = () => JsonConvert.DeserializeObject<TypeIdContainer>(json, _settings);
+
+        // assert
+        act.Should().Throw<JsonException>().WithInnerException<FormatException>();
+    }
+    
+    private record TypeIdContainer(TypeId Id, int Value);
+}
