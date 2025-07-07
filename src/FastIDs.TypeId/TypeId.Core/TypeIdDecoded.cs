@@ -5,9 +5,17 @@ using FastIDs.TypeId.Uuid;
 namespace FastIDs.TypeId;
 
 [StructLayout(LayoutKind.Auto)]
-public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattable, IUtf8SpanFormattable
+public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattable, IUtf8SpanFormattable, IComparable<TypeIdDecoded>, IComparable
 {
+    private static IComparer<TypeIdDecoded> ComparerValue = Comparers.Lex;
     private static readonly UuidGenerator UuidGenerator = new();
+
+    public static IComparer<TypeIdDecoded> Comparer
+    {
+        get => ComparerValue;
+        set => ComparerValue = value ?? throw new ArgumentNullException(nameof(value));
+        
+    }
     
     /// <summary>
     /// The type part of the TypeId.
@@ -180,11 +188,31 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
 
     public override bool Equals(object? obj) => obj is TypeIdDecoded other && Equals(other);
 
+    public int CompareTo(TypeIdDecoded other) => ComparerValue.Compare(this, other);
+
+    public int CompareTo(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) 
+            return 1;
+        
+        return obj is TypeIdDecoded other 
+            ? CompareTo(other) 
+            : throw new ArgumentException($"Object must be of type {nameof(TypeIdDecoded)}");
+    }
+
     public override int GetHashCode() => HashCode.Combine(Type, Id);
 
     public static bool operator ==(TypeIdDecoded left, TypeIdDecoded right) => left.Equals(right);
 
     public static bool operator !=(TypeIdDecoded left, TypeIdDecoded right) => !left.Equals(right);
+    
+    public static bool operator <(TypeIdDecoded left, TypeIdDecoded right) => left.CompareTo(right) < 0;
+    
+    public static bool operator <=(TypeIdDecoded left, TypeIdDecoded right) => left.CompareTo(right) < 0;
+    
+    public static bool operator >(TypeIdDecoded left, TypeIdDecoded right) => left.CompareTo(right) > 0;
+    
+    public static bool operator >=(TypeIdDecoded left, TypeIdDecoded right) => left.CompareTo(right) >= 0;
 
     /// <summary>
     /// Generates new TypeId with the specified type and random UUIDv7.
