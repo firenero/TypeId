@@ -258,6 +258,14 @@ public readonly struct TypeId : IEquatable<TypeId>, ISpanFormattable, IUtf8SpanF
 
     public static bool operator !=(TypeId left, TypeId right) => !left.Equals(right);
     
+    public static bool operator <(TypeId left, TypeId right) => left.CompareTo(right) < 0;
+    
+    public static bool operator <=(TypeId left, TypeId right) => left.CompareTo(right) <= 0;
+    
+    public static bool operator >(TypeId left, TypeId right) => left.CompareTo(right) > 0;
+    
+    public static bool operator >=(TypeId left, TypeId right) => left.CompareTo(right) >= 0;
+    
     public int CompareTo(TypeId other) => string.Compare(_str, other._str, StringComparison.Ordinal);
 
     public int CompareTo(object? obj)
