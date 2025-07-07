@@ -10,6 +10,12 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
     private static IComparer<TypeIdDecoded> ComparerValue = Comparers.Lex;
     private static readonly UuidGenerator UuidGenerator = new();
 
+    /// <summary>
+    /// The comparer that is used by <see cref="IComparable{T}"/> methods and comparison operators.
+    /// </summary>
+    /// <exception cref="ArgumentNullException">
+    /// The value is null.
+    /// </exception>
     public static IComparer<TypeIdDecoded> Comparer
     {
         get => ComparerValue;
