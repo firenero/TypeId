@@ -214,7 +214,7 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
     
     public static bool operator <(TypeIdDecoded left, TypeIdDecoded right) => left.CompareTo(right) < 0;
     
-    public static bool operator <=(TypeIdDecoded left, TypeIdDecoded right) => left.CompareTo(right) < 0;
+    public static bool operator <=(TypeIdDecoded left, TypeIdDecoded right) => left.CompareTo(right) <= 0;
     
     public static bool operator >(TypeIdDecoded left, TypeIdDecoded right) => left.CompareTo(right) > 0;
     
