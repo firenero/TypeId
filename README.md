@@ -199,7 +199,7 @@ Both `TypeId` and `TypeIdDecoded` structs implement the `IEquatable<T>` interfac
 
 `TypeId` and `TypeIdDecoded` also implement `IComparable<T>` and the comparison operators `< > <= >=`.  `TypeId` always 
 uses lexographic comparison.  `TypeIdDecoded` uses a lexographic comparer by default, but you can choose to use the timestamp
-based comparer by setting `TypeIdDecoded.Comparer = Comparers.Timestamp` in your application startup code.
+based comparer by setting `TypeIdDecoded.Comparer.Default = TypeIdDecoded.Comparers.Timestamp` in your application startup code.
 
 ### UUIDv7 component operations
 
