@@ -7,22 +7,8 @@ namespace FastIDs.TypeId;
 [StructLayout(LayoutKind.Auto)]
 public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattable, IUtf8SpanFormattable, IComparable<TypeIdDecoded>, IComparable
 {
-    private static IComparer<TypeIdDecoded> ComparerValue = Comparers.Lex;
     private static readonly UuidGenerator UuidGenerator = new();
 
-    /// <summary>
-    /// The comparer that is used by <see cref="IComparable{T}"/> methods and comparison operators.
-    /// </summary>
-    /// <exception cref="ArgumentNullException">
-    /// The value is null.
-    /// </exception>
-    public static IComparer<TypeIdDecoded> Comparer
-    {
-        get => ComparerValue;
-        set => ComparerValue = value ?? throw new ArgumentNullException(nameof(value));
-        
-    }
-    
     /// <summary>
     /// The type part of the TypeId.
     /// </summary>
@@ -194,7 +180,7 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
 
     public override bool Equals(object? obj) => obj is TypeIdDecoded other && Equals(other);
 
-    public int CompareTo(TypeIdDecoded other) => ComparerValue.Compare(this, other);
+    public int CompareTo(TypeIdDecoded other) => Comparers.Default.Compare(this, other);
 
     public int CompareTo(object? obj)
     {
@@ -305,5 +291,10 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
         /// TypeID components are compared in the following order: timestamp, random part of the ID, and the type.
         /// </remarks>
         public static IComparer<TypeIdDecoded> Timestamp => TypeIdDecodedTimestampComparer.Instance;
+
+        /// <summary>
+        /// The comparer that is used by <see cref="IComparable{T}"/> methods and comparison operators.
+        /// </summary>
+        public static IComparer<TypeIdDecoded> Default { get; set; } = Lex;
     }
 }
