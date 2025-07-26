@@ -24,7 +24,11 @@ public class TypeIdDeserializationTests
         var act = () => JsonSerializer.Deserialize<TypeIdContainer>(json, _options);
 
         // assert
-        act.Should().Throw<JsonException>().WithInnerException<FormatException>();
+        act.Should().Throw<JsonException>()
+            .Where(x => x.LineNumber == 1)
+            .Where(x => x.BytePositionInLine != null)
+            .Where(x => x.Path == "$.Id")
+            .WithInnerException<FormatException>();
     }
     
     [Test]
@@ -42,7 +46,11 @@ public class TypeIdDeserializationTests
         var act = () => JsonSerializer.Deserialize<Dictionary<TypeId, int>>(json, _options);
 
         // assert
-        act.Should().Throw<JsonException>().WithInnerException<FormatException>();
+        act.Should().Throw<JsonException>()
+            .Where(x => x.LineNumber == 1)
+            .Where(x => x.BytePositionInLine != null)
+            .Where(x => x.Path == "$.Id")
+            .WithInnerException<FormatException>();
     }
     
     private record TypeIdContainer(TypeId Id, int Value);
