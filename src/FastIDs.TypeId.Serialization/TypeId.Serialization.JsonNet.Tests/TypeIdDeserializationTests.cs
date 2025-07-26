@@ -7,8 +7,8 @@ namespace FastIDs.TypeId.Serialization.JsonNet.Tests;
 public class TypeIdDeserializationTests
 {
     private readonly JsonSerializerSettings _settings = new JsonSerializerSettings().ConfigureForTypeId();
-    private const string InvalidTypeIdStr = "type_01h455vb4pex5vsknk084sn02L";  // 'L' is not valid base32
-    
+    private const string InvalidTypeIdStr = "type_01h455vb4pex5vsknk084sn02L"; // 'L' is not valid base32
+
     [Test]
     public void TypeId_ParsingError_ShouldBeConvertedToJsonException()
     {
@@ -24,8 +24,12 @@ public class TypeIdDeserializationTests
         var act = () => JsonConvert.DeserializeObject<TypeIdContainer>(json, _settings);
 
         // assert
-        act.Should().Throw<JsonException>().WithInnerException<FormatException>();
+        act.Should()
+            .Throw<JsonSerializationException>()
+            .Where(x => x.LineNumber == 2)
+            .Where(x => x.LinePosition > 0)
+            .WithInnerException<FormatException>();
     }
-    
+
     private record TypeIdContainer(TypeId Id, int Value);
 }

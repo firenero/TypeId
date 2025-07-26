@@ -17,7 +17,7 @@ public class TypeIdDecodedConverter : JsonConverter<TypeIdDecoded>
         }
         catch (FormatException ex)
         {
-            throw new JsonException(ex.Message, ex);
+            throw JsonSerializationExceptionFactory.Create(reader, ex.Message, ex);
         }
     }
 }
