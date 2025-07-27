@@ -5,10 +5,10 @@ using FastIDs.TypeId.Uuid;
 namespace FastIDs.TypeId;
 
 [StructLayout(LayoutKind.Auto)]
-public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattable, IUtf8SpanFormattable
+public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattable, IUtf8SpanFormattable, IComparable<TypeIdDecoded>, IComparable
 {
     private static readonly UuidGenerator UuidGenerator = new();
-    
+
     /// <summary>
     /// The type part of the TypeId.
     /// </summary>
@@ -180,11 +180,31 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
 
     public override bool Equals(object? obj) => obj is TypeIdDecoded other && Equals(other);
 
+    public int CompareTo(TypeIdDecoded other) => Comparers.Default.Compare(this, other);
+
+    public int CompareTo(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) 
+            return 1;
+        
+        return obj is TypeIdDecoded other 
+            ? CompareTo(other) 
+            : throw new ArgumentException($"Object must be of type {nameof(TypeIdDecoded)}");
+    }
+
     public override int GetHashCode() => HashCode.Combine(Type, Id);
 
     public static bool operator ==(TypeIdDecoded left, TypeIdDecoded right) => left.Equals(right);
 
     public static bool operator !=(TypeIdDecoded left, TypeIdDecoded right) => !left.Equals(right);
+    
+    public static bool operator <(TypeIdDecoded left, TypeIdDecoded right) => left.CompareTo(right) < 0;
+    
+    public static bool operator <=(TypeIdDecoded left, TypeIdDecoded right) => left.CompareTo(right) <= 0;
+    
+    public static bool operator >(TypeIdDecoded left, TypeIdDecoded right) => left.CompareTo(right) > 0;
+    
+    public static bool operator >=(TypeIdDecoded left, TypeIdDecoded right) => left.CompareTo(right) >= 0;
 
     /// <summary>
     /// Generates new TypeId with the specified type and random UUIDv7.
@@ -271,5 +291,10 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
         /// TypeID components are compared in the following order: timestamp, random part of the ID, and the type.
         /// </remarks>
         public static IComparer<TypeIdDecoded> Timestamp => TypeIdDecodedTimestampComparer.Instance;
+
+        /// <summary>
+        /// The comparer that is used by <see cref="IComparable{T}"/> methods and comparison operators.
+        /// </summary>
+        public static IComparer<TypeIdDecoded> Default { get; set; } = Lex;
     }
 }

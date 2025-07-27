@@ -190,12 +190,16 @@ Both `TypeId` and `TypeIdDecoded` have the same API for checking if the type equ
 bool isSameType = typeId.HasType("your_type"); // also has overload for ReadOnlySpan<char>
 ```
 
-### Equality
+### Equality and Comparisons
 
 Both `TypeId` and `TypeIdDecoded` structs implement the `IEquatable<T>` interface with all its benefits:
 * `typeId.Equals(other)` or `typeId == other` to check if IDs are same.
 * `!typeId.Equals(other)` or `typeId != other` to check if IDs are different.
 * Use `TypeId` as a key in `Dictionary` or `HashSet`.
+
+`TypeId` and `TypeIdDecoded` also implement `IComparable<T>` and the comparison operators `< > <= >=`.  `TypeId` always 
+uses lexographic comparison.  `TypeIdDecoded` uses a lexographic comparer by default, but you can choose to use the timestamp
+based comparer by setting `TypeIdDecoded.Comparer.Default = TypeIdDecoded.Comparers.Timestamp` in your application startup code.
 
 ### UUIDv7 component operations
 
