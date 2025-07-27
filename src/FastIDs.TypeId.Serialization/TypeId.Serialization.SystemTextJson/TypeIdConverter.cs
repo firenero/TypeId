@@ -8,7 +8,14 @@ public class TypeIdConverter : JsonConverter<TypeId>
     public override TypeId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var val = reader.GetString();
-        return val is not null ? TypeId.Parse(val) : default;
+        try
+        {
+            return val is not null ? TypeId.Parse(val) : default;
+        }
+        catch (FormatException ex)
+        {
+            throw new JsonException(ex.Message, ex);
+        }
     }
 
     public override void Write(Utf8JsonWriter writer, TypeId value, JsonSerializerOptions options)
@@ -24,6 +31,13 @@ public class TypeIdConverter : JsonConverter<TypeId>
     public override TypeId ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var val = reader.GetString();
-        return val is not null ? TypeId.Parse(val) : default;
+        try
+        {
+            return val is not null ? TypeId.Parse(val) : default;
+        }
+        catch (FormatException ex)
+        {
+            throw new JsonException(ex.Message, ex);
+        }
     }
 }

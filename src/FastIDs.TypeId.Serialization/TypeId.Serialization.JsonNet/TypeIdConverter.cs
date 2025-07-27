@@ -11,6 +11,13 @@ public class TypeIdConverter : JsonConverter<TypeId>
 
     public override TypeId ReadJson(JsonReader reader, Type objectType, TypeId existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
-        return reader.Value is string val ? TypeId.Parse(val) : default;
+        try
+        {
+            return reader.Value is string val ? TypeId.Parse(val) : default;
+        }
+        catch (FormatException ex)
+        {
+            throw JsonSerializationExceptionFactory.Create(reader, ex.Message, ex);
+        }
     }
 }

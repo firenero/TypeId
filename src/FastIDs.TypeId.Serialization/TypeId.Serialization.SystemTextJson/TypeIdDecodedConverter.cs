@@ -38,7 +38,14 @@ public class TypeIdDecodedConverter : JsonConverter<TypeIdDecoded>
     private static TypeIdDecoded ReadTypeId(ref Utf8JsonReader reader)
     {
         var val = reader.GetString();
-        return val is not null ? TypeId.Parse(val).Decode() : default;
+        try
+        {
+            return val is not null ? TypeId.Parse(val).Decode() : default;
+        }
+        catch (FormatException ex)
+        {
+            throw new JsonException(ex.Message, ex);
+        }
     }
 
     private static void CopyValueToBuffer(in TypeIdDecoded value, Span<char> buffer)
