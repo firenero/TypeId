@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.Unicode;
@@ -16,6 +17,7 @@ namespace FastIDs.TypeId;
 ///   type    uuid suffix (base32)
 /// </code>
 /// </remarks>
+[TypeConverter(typeof(TypeIdTypeConverter))]
 [StructLayout(LayoutKind.Auto)]
 public readonly struct TypeId : IEquatable<TypeId>, ISpanFormattable, IUtf8SpanFormattable, IComparable<TypeId>, IComparable
 {
