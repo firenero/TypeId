@@ -4,6 +4,7 @@ using FastIDs.TypeId.Uuid;
 
 namespace FastIDs.TypeId;
 
+[TypeConverter(typeof(TypeIdDecodedTypeConverter))]
 [StructLayout(LayoutKind.Auto)]
 public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattable, IUtf8SpanFormattable, IComparable<TypeIdDecoded>, IComparable
 {
