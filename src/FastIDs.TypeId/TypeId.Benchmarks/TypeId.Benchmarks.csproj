@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <WarningsAsErrors>Nullable</WarningsAsErrors>
@@ -13,6 +13,7 @@
       <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
       <PackageReference Include="Evgreg.TypeId" Version="1.0.3" />
       <PackageReference Include="TcKs.TypeId" Version="1.3.0" />
+      <PackageReference Include="TypeSafeId" Version="1.2.0" />
     </ItemGroup>
 
     <ItemGroup>
