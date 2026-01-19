@@ -15,18 +15,18 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
     /// The type part of the TypeId.
     /// </summary>
     public string Type { get; }
-    
+
     /// <summary>
     /// The ID part of the TypeId.
     /// </summary>
     public Guid Id { get; }
-    
+
     internal TypeIdDecoded(string type, Guid id)
     {
         Type = type;
         Id = id;
     }
-    
+
     /// <summary>
     /// Returns the ID part of the TypeId as an encoded string.
     /// </summary>
@@ -52,7 +52,7 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
 
         return Base32.Encode(idBytes, output);
     }
-    
+
     public int GetSuffix(Span<byte> utf8Output)
     {
         Span<byte> idBytes = stackalloc byte[Base32Constants.DecodedLength];
@@ -117,7 +117,7 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
     /// This method ignores <paramref name="format"/> and <paramref name="formatProvider"/> parameters and outputs the same result as <see cref="ToString()"/>.
     /// </remarks>
     public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
-    
+
     /// <summary>
     /// Tries to format the value of the current instance into the provided span of characters.
     /// </summary>
@@ -141,7 +141,7 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
         var suffixSpan = destination[charsWritten..];
         if (suffixSpan.Length < Base32Constants.EncodedLength)
             return false;
-        
+
         var suffixCharsWritten = GetSuffix(suffixSpan);
         charsWritten += suffixCharsWritten;
 
@@ -171,11 +171,20 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
         var suffixSpan = utf8Destination[bytesWritten..];
         if (suffixSpan.Length < Base32Constants.EncodedLength)
             return false;
-        
+
         var suffixBytesWritten = GetSuffix(suffixSpan);
         bytesWritten += suffixBytesWritten;
 
         return true;
+    }
+
+    /// <summary>
+    /// Implicitly converts TypeIdDecoded to Guid by extracting the ID part.
+    /// </summary>
+    /// <param name="typeIdDecoded">The TypeIdDecoded instance.</param>
+    public static implicit operator Guid(TypeIdDecoded typeIdDecoded)
+    {
+        return typeIdDecoded.Id;
     }
 
     public bool Equals(TypeIdDecoded other) => Type == other.Type && Id.Equals(other.Id);
@@ -218,7 +227,7 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
     /// This method validates the type. If you are sure that type is valid use <see cref="New(string, bool)"/> to skip type validation.
     /// </remarks>
     public static TypeIdDecoded New(string type) => FromUuidV7(type, UuidGenerator.New());
-    
+
     /// <summary>
     /// Generates new TypeId with the specified type and random UUIDv7. If <paramref name="validateType"/> is false, type is not validated.
     /// </summary>
