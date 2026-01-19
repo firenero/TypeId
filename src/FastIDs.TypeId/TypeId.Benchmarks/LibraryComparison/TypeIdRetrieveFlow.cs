@@ -32,7 +32,12 @@ public class TypeIdRetrieveFlow
     [GlobalSetup]
     public void Setup()
     {
-        _typeIdString = TypeId.FromUuidV7(_prefixFull[..PrefixLength], _uuidV7).ToString();
+        var prefix = _prefixFull[..PrefixLength];
+        _typeIdString = TypeId.FromUuidV7(prefix, _uuidV7).ToString();
+
+#if NET10_0_OR_GREATER
+        TypeSafeId.TypeId<Entity>.SetPrefix(prefix);
+#endif
     }
     
     [Benchmark(Baseline = true)]
@@ -63,4 +68,15 @@ public class TypeIdRetrieveFlow
         var typeId = global::TypeId.TypeId.Parse(_typeIdString);
         return typeId.ToString();
     }
+
+#if NET10_0_OR_GREATER
+    [Benchmark]
+    public string TypeSafeIdBenchmark()
+    {
+        var typeId = TypeSafeId.TypeId<Entity>.Parse(_typeIdString);
+        return typeId.ToString();
+    }
+
+    public record Entity;
+#endif
 }

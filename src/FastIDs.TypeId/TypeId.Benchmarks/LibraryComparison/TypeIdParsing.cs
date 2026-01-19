@@ -33,7 +33,12 @@ public class TypeIdParsing
     [GlobalSetup]
     public void Setup()
     {
-        _typeIdString = TypeId.FromUuidV7(_prefixFull[..PrefixLength], _uuidV7).ToString();
+        var prefix = _prefixFull[..PrefixLength];
+        _typeIdString = TypeId.FromUuidV7(prefix, _uuidV7).ToString();
+
+#if NET10_0_OR_GREATER
+        TypeSafeId.TypeId<Entity>.SetPrefix(prefix);
+#endif
     }
 
     [Benchmark(Baseline = true)]
@@ -74,4 +79,21 @@ public class TypeIdParsing
         global::TypeId.TypeId.TryParse(_typeIdString, out var typeId);
         return typeId;
     }
+
+#if NET10_0_OR_GREATER
+    [Benchmark]
+    public TypeSafeId.TypeId<Entity> TypeSafeIdParse()
+    {
+        return TypeSafeId.TypeId<Entity>.Parse(_typeIdString);
+    }
+
+    [Benchmark]
+    public TypeSafeId.TypeId<Entity> TypeSafeIdTryParse()
+    {
+        TypeSafeId.TypeId<Entity>.TryParse(_typeIdString, out var typeId);
+        return typeId;
+    }
+
+    public record Entity;
+#endif
 }
