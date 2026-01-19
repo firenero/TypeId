@@ -36,7 +36,9 @@ public class TypeIdParsing
         var prefix = _prefixFull[..PrefixLength];
         _typeIdString = TypeId.FromUuidV7(prefix, _uuidV7).ToString();
 
+#if NET10_0_OR_GREATER
         TypeSafeId.TypeId<Entity>.SetPrefix(prefix);
+#endif
     }
 
     [Benchmark(Baseline = true)]
@@ -78,6 +80,7 @@ public class TypeIdParsing
         return typeId;
     }
 
+#if NET10_0_OR_GREATER
     [Benchmark]
     public TypeSafeId.TypeId<Entity> TypeSafeIdParse()
     {
@@ -92,4 +95,5 @@ public class TypeIdParsing
     }
 
     public record Entity;
+#endif
 }

@@ -19,7 +19,9 @@ public class TypeIdComparison
     private TypeIdDecoded[] _fastIdTypeIdsDecoded = Array.Empty<TypeIdDecoded>();
     private TcKs.TypeId.TypeId[] _tcKsTypeIds = Array.Empty<TcKs.TypeId.TypeId>();
     private global::TypeId.TypeId[] _cbuctokTypeIds = Array.Empty<global::TypeId.TypeId>();
+#if NET10_0_OR_GREATER
     private TypeSafeId.TypeId<Entity>[] _typeSafeIds = Array.Empty<TypeSafeId.TypeId<Entity>>();
+#endif
 
     private readonly string _prefixFull;
 
@@ -43,7 +45,9 @@ public class TypeIdComparison
             ? $"{prefix}_{_suffix}"
             : _suffix;
 
+#if NET10_0_OR_GREATER
         TypeSafeId.TypeId<Entity>.SetPrefix(prefix);
+#endif
 
         _fastIdTypeIds = new[] { TypeId.Parse(typeIdStr), TypeId.Parse(typeIdStr) };
         _fastIdTypeIdsDecoded = new[] { TypeId.Parse(typeIdStr).Decode(), TypeId.Parse(typeIdStr).Decode() };
@@ -55,7 +59,9 @@ public class TypeIdComparison
         }
 
         _cbuctokTypeIds = new[] { global::TypeId.TypeId.Parse(typeIdStr), global::TypeId.TypeId.Parse(typeIdStr) };
+#if NET10_0_OR_GREATER
         _typeSafeIds = new[] { TypeSafeId.TypeId<Entity>.Parse(typeIdStr), TypeSafeId.TypeId<Entity>.Parse(typeIdStr) };
+#endif
     }
 
     [Benchmark(Baseline = true)]
@@ -74,9 +80,11 @@ public class TypeIdComparison
     [BenchmarkCategory("Equality")]
     public bool CbuctokEquals() => _cbuctokTypeIds[0] == _cbuctokTypeIds[1];
 
+#if NET10_0_OR_GREATER
     [Benchmark]
     [BenchmarkCategory("Equality")]
     public bool TypeSafeIdEquals() => _typeSafeIds[0] == _typeSafeIds[1];
+#endif
 
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("HashCode")]
@@ -94,9 +102,11 @@ public class TypeIdComparison
     [BenchmarkCategory("HashCode")]
     public int CbuctokHash() => _cbuctokTypeIds[0].GetHashCode();
 
+#if NET10_0_OR_GREATER
     [Benchmark]
     [BenchmarkCategory("HashCode")]
     public int TypeSafeIdHash() => _typeSafeIds[0].GetHashCode();
+#endif
 
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("Prefix")]
@@ -118,9 +128,11 @@ public class TypeIdComparison
     [BenchmarkCategory("Prefix")]
     public string CbuctokPrefix() => _cbuctokTypeIds[0].Type;
 
+#if NET10_0_OR_GREATER
     [Benchmark]
     [BenchmarkCategory("Prefix")]
     public string TypeSafeIdPrefix() => TypeSafeId.TypeId<Entity>.Prefix;
+#endif
 
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("Id")]
@@ -138,9 +150,11 @@ public class TypeIdComparison
     [BenchmarkCategory("Id")]
     public string CbuctokId() => _cbuctokTypeIds[0].Id;
 
+#if NET10_0_OR_GREATER
     [Benchmark]
     [BenchmarkCategory("Id")]
     public Guid TypeSafeIdId() => _typeSafeIds[0].Uuid;
+#endif
 
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("Suffix")]
@@ -158,6 +172,7 @@ public class TypeIdComparison
     [BenchmarkCategory("Suffix")]
     public string TcKsSuffix() => _tcKsTypeIds[0].Suffix;
 
+#if NET10_0_OR_GREATER
     [Benchmark]
     [BenchmarkCategory("Suffix")]
     public string TypeSafeIdSuffix() => _typeSafeIds[0].GetSuffix();
@@ -171,4 +186,5 @@ public class TypeIdComparison
     }
 
     public record Entity;
+#endif
 }
