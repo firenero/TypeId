@@ -4,6 +4,14 @@ using System.Security.Cryptography;
 
 namespace FastIDs.TypeId.Uuid;
 
+#if NET10_0_OR_GREATER
+internal static class UuidGenerator
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Guid New() => Guid.CreateVersion7();
+}
+#else
+
 // The UUIDv7 implementation is extracted from https://github.com/mareek/UUIDNext to prevent transient dependency.
 // TypeID doesn't require any UUID implementations except UUIDv7.
 
@@ -115,3 +123,4 @@ internal sealed class UuidGenerator
         return BinaryPrimitives.ReadUInt16BigEndian(buffer);
     }
 }
+#endif
