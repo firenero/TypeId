@@ -8,7 +8,7 @@ namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 [MarkdownExporterAttribute.Default]
 public class TypeIdGeneration
 {
-    [Params(0, 5, 10, 30, 63)]
+    [Params(0, 5, 15, 63)]
     public int PrefixLength;
     
     private string _prefix = "";
@@ -32,7 +32,9 @@ public class TypeIdGeneration
         _prefix = _prefixFull[..PrefixLength];
 
 #if NET10_0_OR_GREATER
+#pragma warning disable CS0618 // Type or member is obsolete
         TypeSafeId.TypeId<Entity>.SetPrefix(_prefix);
+#pragma warning restore CS0618 // Type or member is obsolete
 #endif
     }
 

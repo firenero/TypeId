@@ -8,7 +8,7 @@ namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 [MarkdownExporterAttribute.Default]
 public class TypeIdString
 {
-    [Params(0, 5, 10, 30, 63)]
+    [Params(0, 5, 15, 63)]
     public int PrefixLength;
 
     private readonly string _prefixFull;
@@ -48,7 +48,9 @@ public class TypeIdString
 #if NET10_0_OR_GREATER
         _typeSafeIdTypeId = new TypeSafeId.TypeId<Entity>(_uuidV7);
 
+#pragma warning disable CS0618 // Type or member is obsolete
         global::TypeSafeId.TypeId<Entity>.SetPrefix(prefix);
+#pragma warning restore CS0618 // Type or member is obsolete
 #endif
     }
 
