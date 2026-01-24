@@ -100,6 +100,32 @@ public class IdAlphabetValidationBenchmarks
     }
     
     [Benchmark]
+    [BenchmarkCategory("Valid")]
+    public bool SearchValuesFullValid()
+    {
+        var isValid = false;
+        foreach (var id in _validIds)
+        {
+            isValid &= !id.AsSpan().ContainsAnyExcept(_searchValues);
+        }
+
+        return isValid;
+    }
+    
+    [Benchmark]
+    [BenchmarkCategory("Invalid")]
+    public bool SearchValuesFullInvalid()
+    {
+        var isValid = false;
+        foreach (var id in _invalidIds)
+        {
+            isValid &= !id.AsSpan().ContainsAnyExcept(_searchValues);
+        }
+
+        return isValid;
+    }
+    
+    [Benchmark]
     [BenchmarkCategory("Invalid")]
     public bool SearchValuesUnrollInvalid()
     {
