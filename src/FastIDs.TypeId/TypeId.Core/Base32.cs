@@ -111,12 +111,6 @@ internal static class Base32
 
     private static bool IsValidAlphabet(ReadOnlySpan<char> chars)
     {
-        foreach (var c in chars)
-        {
-            if (!Base32Constants.AlphabetValues.Contains(c))
-                return false;
-        }
-
-        return true;
+        return !chars.ContainsAnyExcept(Base32Constants.AlphabetValues);
     }
 }

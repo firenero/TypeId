@@ -9,7 +9,9 @@ namespace FastIDs.TypeId;
 [StructLayout(LayoutKind.Auto)]
 public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattable, IUtf8SpanFormattable, IComparable<TypeIdDecoded>, IComparable
 {
+#if !NET10_0_OR_GREATER
     private static readonly UuidGenerator UuidGenerator = new();
+#endif
 
     /// <summary>
     /// The type part of the TypeId.
