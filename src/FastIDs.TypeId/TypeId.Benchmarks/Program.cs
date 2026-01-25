@@ -10,4 +10,4 @@ var config = DefaultConfig.Instance;
 //     .AddJob(Job.Default.WithId("Vector256").WithEnvironmentVariable("DOTNET_EnableAVX512F", "0"))
 //     .AddJob(Job.Default.WithId("Vector512"));
 
-BenchmarkSwitcher.FromAssembly(Assembly.GetExecutingAssembly()).Run(config: config);
+BenchmarkSwitcher.FromAssembly(Assembly.GetExecutingAssembly()).Run(config: config, args: args);
