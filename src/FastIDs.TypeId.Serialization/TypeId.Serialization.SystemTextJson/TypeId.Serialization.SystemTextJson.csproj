@@ -19,6 +19,12 @@
         <Copyright>Copyright (c) Mykhailo Matviiv 2023.</Copyright>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <IsTrimmable>true</IsTrimmable>
+        <IsAotCompatible>true</IsAotCompatible>
+        <VerifyReferenceTrimCompatibility>true</VerifyReferenceTrimCompatibility>
+    </PropertyGroup>
+
     <ItemGroup>
         <None Include="../../../README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
