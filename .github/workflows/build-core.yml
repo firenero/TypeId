@@ -53,9 +53,9 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
-        run: dotnet build --no-restore --configuration Release
+        run: dotnet build --no-restore --configuration Release ./TypeId.Core/TypeId.Core.csproj
       - name: Pack
-        run: dotnet pack --no-build -c Release -o ./artifacts
+        run: dotnet pack --no-build -c Release ./TypeId.Core -o ./artifacts
       - name: Publish to NuGet
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
