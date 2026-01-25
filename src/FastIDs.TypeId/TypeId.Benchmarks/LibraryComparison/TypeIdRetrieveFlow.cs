@@ -35,9 +35,7 @@ public class TypeIdRetrieveFlow
         var prefix = _prefixFull[..PrefixLength];
         _typeIdString = TypeId.FromUuidV7(prefix, _uuidV7).ToString();
 
-#if NET10_0_OR_GREATER
         TypeSafeId.TypeId<Entity>.SetPrefix(prefix);
-#endif
     }
     
     [Benchmark(Baseline = true)]
@@ -69,7 +67,6 @@ public class TypeIdRetrieveFlow
         return typeId.ToString();
     }
 
-#if NET10_0_OR_GREATER
     [Benchmark]
     public string TypeSafeIdBenchmark()
     {
@@ -78,5 +75,4 @@ public class TypeIdRetrieveFlow
     }
 
     public record Entity;
-#endif
 }
