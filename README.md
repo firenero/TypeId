@@ -2,7 +2,7 @@
 
 [![NuGet Version](https://img.shields.io/nuget/v/FastIDs.TypeId)](https://www.nuget.org/packages/FastIDs.TypeId)
 
-High-performance C# implementation of [TypeId](https://github.com/jetpack-io/typeid/).
+High-performance, Native AOT-compatible C# implementation of [TypeId](https://github.com/jetpack-io/typeid/).
 
 Here's an example of a TypeID of type user:
 ```
