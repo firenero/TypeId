@@ -31,9 +31,7 @@ public class TypeIdGeneration
     {
         _prefix = _prefixFull[..PrefixLength];
 
-#if NET10_0_OR_GREATER
         TypeSafeId.TypeId<Entity>.SetPrefix(_prefix);
-#endif
     }
 
     [Benchmark(Baseline = true)]
@@ -60,13 +58,11 @@ public class TypeIdGeneration
         return global::TypeId.TypeId.NewTypeId(_prefix);
     }
 
-#if NET10_0_OR_GREATER
     [Benchmark]
     public TypeSafeId.TypeId<Entity> TypeSafeIdBenchmark()
     {
-        return TypeSafeId.TypeId<Entity>.Create();
+        return TypeSafeId.TypeId.Create<Entity>();
     }
 
     public record Entity;
-#endif
 }

@@ -18,9 +18,7 @@ public class TypeIdString
     private TypeIdDecoded _fastIdTypeIdDecoded;
     private TcKs.TypeId.TypeId _tcKsTypeId;
     private global::TypeId.TypeId _cbuctokTypeId;
-#if NET10_0_OR_GREATER
     private TypeSafeId.TypeId<Entity> _typeSafeIdTypeId;
-#endif
     
     public TypeIdString()
     {
@@ -45,11 +43,9 @@ public class TypeIdString
         _fastIdTypeId = _fastIdTypeIdDecoded.Encode();
         _tcKsTypeId = new TcKs.TypeId.TypeId(prefix, _uuidV7);
         _cbuctokTypeId = new global::TypeId.TypeId(prefix, _uuidV7);
-#if NET10_0_OR_GREATER
         _typeSafeIdTypeId = new TypeSafeId.TypeId<Entity>(_uuidV7);
 
         global::TypeSafeId.TypeId<Entity>.SetPrefix(prefix);
-#endif
     }
 
     [Benchmark(Baseline = true)]
@@ -76,7 +72,6 @@ public class TypeIdString
         return _cbuctokTypeId.ToString();
     }
 
-#if NET10_0_OR_GREATER
     [Benchmark]
     public string TypeSafeId()
     {
@@ -84,5 +79,4 @@ public class TypeIdString
     }
 
     public record Entity;
-#endif
 }
