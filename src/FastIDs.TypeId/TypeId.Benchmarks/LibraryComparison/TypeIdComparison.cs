@@ -10,17 +10,17 @@ namespace FastIDs.TypeId.Benchmarks.LibraryComparison;
 [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
 public class TypeIdComparison
 {
-    [Params(0, 5, 10, 30, 63)] 
+    [Params(0, 5, 15, 63)] 
     public int PrefixLength;
 
-    private string _suffix = "01h455vb4pex5vsknk084sn02q";
-    
-    private TypeId[] _fastIdTypeIds = Array.Empty<TypeId>();
-    private TypeIdDecoded[] _fastIdTypeIdsDecoded = Array.Empty<TypeIdDecoded>();
-    private TcKs.TypeId.TypeId[] _tcKsTypeIds = Array.Empty<TcKs.TypeId.TypeId>();
-    private global::TypeId.TypeId[] _cbuctokTypeIds = Array.Empty<global::TypeId.TypeId>();
+    private const string Suffix = "01h455vb4pex5vsknk084sn02q";
+
+    private TypeId[] _fastIdTypeIds = [];
+    private TypeIdDecoded[] _fastIdTypeIdsDecoded = [];
+    private TcKs.TypeId.TypeId[] _tcKsTypeIds = [];
+    private global::TypeId.TypeId[] _cbuctokTypeIds = [];
 #if NET10_0_OR_GREATER
-    private TypeSafeId.TypeId<Entity>[] _typeSafeIds = Array.Empty<TypeSafeId.TypeId<Entity>>();
+    private TypeSafeId.TypeId<Entity>[] _typeSafeIds = [];
 #endif
 
     private readonly string _prefixFull;
@@ -42,25 +42,27 @@ public class TypeIdComparison
     {
         var prefix = _prefixFull[..PrefixLength];
         var typeIdStr = PrefixLength > 0
-            ? $"{prefix}_{_suffix}"
-            : _suffix;
+            ? $"{prefix}_{Suffix}"
+            : Suffix;
 
 #if NET10_0_OR_GREATER
+#pragma warning disable CS0618 // Type or member is obsolete
         TypeSafeId.TypeId<Entity>.SetPrefix(prefix);
+#pragma warning restore CS0618 // Type or member is obsolete
 #endif
 
-        _fastIdTypeIds = new[] { TypeId.Parse(typeIdStr), TypeId.Parse(typeIdStr) };
-        _fastIdTypeIdsDecoded = new[] { TypeId.Parse(typeIdStr).Decode(), TypeId.Parse(typeIdStr).Decode() };
+        _fastIdTypeIds = [TypeId.Parse(typeIdStr), TypeId.Parse(typeIdStr)];
+        _fastIdTypeIdsDecoded = [TypeId.Parse(typeIdStr).Decode(), TypeId.Parse(typeIdStr).Decode()];
 
-        _tcKsTypeIds = Array.Empty<TcKs.TypeId.TypeId>();
+        _tcKsTypeIds = [];
         if (TcKs.TypeId.TypeId.TryParse(typeIdStr, out var parsed))
         {
-            _tcKsTypeIds = new[] { parsed, parsed };
+            _tcKsTypeIds = [parsed, parsed];
         }
 
-        _cbuctokTypeIds = new[] { global::TypeId.TypeId.Parse(typeIdStr), global::TypeId.TypeId.Parse(typeIdStr) };
+        _cbuctokTypeIds = [global::TypeId.TypeId.Parse(typeIdStr), global::TypeId.TypeId.Parse(typeIdStr)];
 #if NET10_0_OR_GREATER
-        _typeSafeIds = new[] { TypeSafeId.TypeId<Entity>.Parse(typeIdStr), TypeSafeId.TypeId<Entity>.Parse(typeIdStr) };
+        _typeSafeIds = [TypeSafeId.TypeId<Entity>.Parse(typeIdStr), TypeSafeId.TypeId<Entity>.Parse(typeIdStr)];
 #endif
     }
 

@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeId.Tests", "TypeId.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeId.Benchmarks", "TypeId.Benchmarks\TypeId.Benchmarks.csproj", "{6B112FAC-0310-448C-8654-BE41A7FC39CC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeId.BenchmarksNuget", "TypeId.BenchmarksNuget\TypeId.BenchmarksNuget.csproj", "{43BB99E6-90DF-4A1E-B539-B2B3AB6F50DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{6B112FAC-0310-448C-8654-BE41A7FC39CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B112FAC-0310-448C-8654-BE41A7FC39CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B112FAC-0310-448C-8654-BE41A7FC39CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43BB99E6-90DF-4A1E-B539-B2B3AB6F50DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43BB99E6-90DF-4A1E-B539-B2B3AB6F50DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43BB99E6-90DF-4A1E-B539-B2B3AB6F50DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43BB99E6-90DF-4A1E-B539-B2B3AB6F50DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
