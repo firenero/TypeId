@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.InteropServices;
-using System.Text.Unicode;
+using System.Text;
 using FastIDs.TypeId.Uuid;
 
 namespace FastIDs.TypeId;
@@ -9,9 +9,7 @@ namespace FastIDs.TypeId;
 [StructLayout(LayoutKind.Auto)]
 public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattable, IUtf8SpanFormattable, IComparable<TypeIdDecoded>, IComparable
 {
-#if !NET10_0_OR_GREATER
     private static readonly UuidGenerator UuidGenerator = new();
-#endif
 
     /// <summary>
     /// The type part of the TypeId.
@@ -33,37 +31,17 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
     /// Returns the ID part of the TypeId as an encoded string.
     /// </summary>
     /// <returns>ID part of the TypeId as an encoded string.</returns>
-    public string GetSuffix()
-    {
-        Span<char> suffixChars = stackalloc char[Base32Constants.EncodedLength];
-        GetSuffix(suffixChars);
-        return suffixChars.ToString();
-    }
+    public string GetSuffix() =>
+        string.Create(Base32Constants.EncodedLength, Id, static (span, id) => Base32.Encode(id, span));
 
     /// <summary>
     /// Returns the ID part of the TypeId as an encoded string.
     /// </summary>
     /// <param name="output">When this method returns, <paramref name="output"/> contains the encoded ID part of the TypeId.</param>
     /// <returns>Number of characters written to <paramref name="output"/>.</returns>   
-    public int GetSuffix(Span<char> output)
-    {
-        Span<byte> idBytes = stackalloc byte[Base32Constants.DecodedLength];
-        Id.TryWriteBytes(idBytes);
+    public int GetSuffix(Span<char> output) => Base32.Encode(Id, output);
 
-        TypeIdParser.FormatUuidBytes(idBytes);
-
-        return Base32.Encode(idBytes, output);
-    }
-    
-    public int GetSuffix(Span<byte> utf8Output)
-    {
-        Span<byte> idBytes = stackalloc byte[Base32Constants.DecodedLength];
-        Id.TryWriteBytes(idBytes);
-
-        TypeIdParser.FormatUuidBytes(idBytes);
-
-        return Base32.Encode(idBytes, utf8Output);
-    }
+    public int GetSuffix(Span<byte> utf8Output) => Base32.Encode(Id, utf8Output);
 
     /// <summary>
     /// Returns the ID generation timestamp.
@@ -101,12 +79,16 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
     /// <returns>Formatted string.</returns>
     public override string ToString()
     {
-        Span<char> suffixChars = stackalloc char[Base32Constants.EncodedLength];
-        GetSuffix(suffixChars);
+        if (Type.Length == 0)
+            return GetSuffix();
 
-        return Type.Length != 0
-            ? $"{Type}_{suffixChars}"
-            : suffixChars.ToString();
+        return string.Create(Type.Length + 1 + Base32Constants.EncodedLength, this, static (span, typeId) =>
+        {
+            var type = typeId.Type;
+            type.CopyTo(span);
+            span[type.Length] = '_';
+            Base32.Encode(typeId.Id, span[(type.Length + 1)..]);
+        });
     }
 
     /// <summary>
@@ -133,20 +115,20 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
     /// </remarks>
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
     {
-        charsWritten = 0;
-        if (Type.Length != 0)
+        var prefixLength = Type.Length != 0 ? Type.Length + 1 : 0;
+        if (destination.Length < prefixLength + Base32Constants.EncodedLength)
         {
-            if (!destination.TryWrite($"{Type}_", out charsWritten))
-                return false;
+            charsWritten = 0;
+            return false;
         }
 
-        var suffixSpan = destination[charsWritten..];
-        if (suffixSpan.Length < Base32Constants.EncodedLength)
-            return false;
-        
-        var suffixCharsWritten = GetSuffix(suffixSpan);
-        charsWritten += suffixCharsWritten;
+        if (prefixLength != 0)
+        {
+            Type.CopyTo(destination);
+            destination[Type.Length] = '_';
+        }
 
+        charsWritten = prefixLength + Base32.Encode(Id, destination[prefixLength..]);
         return true;
     }
 
@@ -163,20 +145,21 @@ public readonly struct TypeIdDecoded : IEquatable<TypeIdDecoded>, ISpanFormattab
     /// </remarks>
     public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
     {
-        bytesWritten = 0;
-        if (Type.Length != 0)
+        var prefixLength = Type.Length != 0 ? Type.Length + 1 : 0;
+        if (utf8Destination.Length < prefixLength + Base32Constants.EncodedLength)
         {
-            if (!Utf8.TryWrite(utf8Destination, $"{Type}_", out bytesWritten))
-                return false;
+            bytesWritten = 0;
+            return false;
         }
 
-        var suffixSpan = utf8Destination[bytesWritten..];
-        if (suffixSpan.Length < Base32Constants.EncodedLength)
-            return false;
-        
-        var suffixBytesWritten = GetSuffix(suffixSpan);
-        bytesWritten += suffixBytesWritten;
+        if (prefixLength != 0)
+        {
+            // Type is ASCII-only (validated on creation), so it's a 1:1 narrowing.
+            Ascii.FromUtf16(Type, utf8Destination, out _);
+            utf8Destination[Type.Length] = (byte)'_';
+        }
 
+        bytesWritten = prefixLength + Base32.Encode(Id, utf8Destination[prefixLength..]);
         return true;
     }
 

@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
-using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text.Unicode;
+using System.Text;
 
 namespace FastIDs.TypeId;
 
@@ -77,8 +77,17 @@ public readonly struct TypeId : IEquatable<TypeId>, ISpanFormattable, IUtf8SpanF
     /// <remarks>
     /// This method ignores <paramref name="format"/> and <paramref name="provider"/> parameters.
     /// </remarks>
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => 
-        destination.TryWrite($"{_str}", out charsWritten);
+    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+    {
+        if (_str.TryCopyTo(destination))
+        {
+            charsWritten = _str.Length;
+            return true;
+        }
+
+        charsWritten = 0;
+        return false;
+    }
 
     /// <summary>
     /// Tries to format the value of the current instance into the provided span of bytes in UTF-8 encoding.
@@ -91,8 +100,18 @@ public readonly struct TypeId : IEquatable<TypeId>, ISpanFormattable, IUtf8SpanF
     /// <remarks>
     /// This method ignores <paramref name="format"/> and <paramref name="provider"/> parameters.
     /// </remarks>
-    public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider) => 
-        Utf8.TryWrite(utf8Destination, $"{_str}", out bytesWritten);
+    public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+    {
+        // TypeId is always ASCII, so every char is encoded as exactly one byte.
+        if (utf8Destination.Length < _str.Length)
+        {
+            bytesWritten = 0;
+            return false;
+        }
+
+        Ascii.FromUtf16(_str, utf8Destination, out bytesWritten);
+        return true;
+    }
 
     /// <summary>
     /// A type component of the TypeId.
@@ -110,16 +129,11 @@ public readonly struct TypeId : IEquatable<TypeId>, ISpanFormattable, IUtf8SpanF
     /// <returns>Decoded TypeId.</returns>
     public TypeIdDecoded Decode()
     {
-        var idSpan = _str.AsSpan(SeparatorIndex + 1);
-        Span<byte> decoded = stackalloc byte[Base32Constants.DecodedLength];
+        var separatorIndex = SeparatorIndex;
+        var id = Base32.DecodeValidated(_str.AsSpan(separatorIndex + 1));
 
-        var canDecode = Base32.TryDecode(idSpan, decoded);
-        Debug.Assert(canDecode, "Id is not a valid Base32 string. Should never happen because it was validated before.");
-
-        TypeIdParser.FormatUuidBytes(decoded);
-
-        var type = SeparatorIndex > 0 ? _str[..SeparatorIndex] : "";
-        return new TypeIdDecoded(type, new Guid(decoded));
+        var type = separatorIndex > 0 ? _str[..separatorIndex] : "";
+        return new TypeIdDecoded(type, id);
     }
 
     /// <summary>
@@ -192,6 +206,16 @@ public readonly struct TypeId : IEquatable<TypeId>, ISpanFormattable, IUtf8SpanF
     /// </remarks>
     public static TypeId Parse(string input)
     {
+        if (TryParse(input, out var result))
+            return result;
+
+        ThrowParseError(input);
+        return default;
+    }
+
+    [DoesNotReturn]
+    private static void ThrowParseError(string input)
+    {
         var separatorIdx = input.LastIndexOf('_');
         if (separatorIdx == 0)
             throw new FormatException("Type separator must be omitted if there is no type present.");
@@ -209,10 +233,7 @@ public readonly struct TypeId : IEquatable<TypeId>, ISpanFormattable, IUtf8SpanF
         if (idSpan[0] > '7')
             throw new FormatException("The maximum possible suffix for TypeId is '7zzzzzzzzzzzzzzzzzzzzzzzzz'");
 
-        if (!Base32.IsValid(idSpan))
-            throw new FormatException("Id is not a valid Base32 string.");
-
-        return new(input);
+        throw new FormatException("Id is not a valid Base32 string.");
     }
 
     /// <summary>
@@ -231,19 +252,22 @@ public readonly struct TypeId : IEquatable<TypeId>, ISpanFormattable, IUtf8SpanF
     /// </remarks>
     public static bool TryParse(string input, out TypeId result)
     {
-        var separatorIdx = input.LastIndexOf('_');
-        if (separatorIdx is 0 or > TypeIdConstants.MaxTypeLength)
+        // The suffix has a fixed length, so the separator (if any) can only be at one position.
+        var typeLength = input.Length - TypeIdConstants.IdLength - 1;
+        if (typeLength >= 0)
+        {
+            if (typeLength < 1 || typeLength > TypeIdConstants.MaxTypeLength || input[typeLength] != '_')
+                return Error(out result);
+            if (TypeIdParser.ValidateType(input.AsSpan(0, typeLength)) is not TypeIdParser.TypeError.None)
+                return Error(out result);
+        }
+        else if (input.Length != TypeIdConstants.IdLength)
+        {
             return Error(out result);
-        
-        var typeSpan = separatorIdx != -1 ? input.AsSpan(0, separatorIdx) : ReadOnlySpan<char>.Empty;
-        if (TypeIdParser.ValidateType(typeSpan) is not TypeIdParser.TypeError.None)
-            return Error(out result);
+        }
 
-        var idSpan = input.AsSpan(separatorIdx + 1);
-        if (idSpan.Length != TypeIdConstants.IdLength || idSpan[0] > '7')
-            return Error(out result);
-
-        if (!Base32.IsValid(idSpan))
+        var idSpan = input.AsSpan(input.Length - TypeIdConstants.IdLength);
+        if (idSpan[0] > '7' || !Base32.IsValid(idSpan))
             return Error(out result);
 
         result = new(input);

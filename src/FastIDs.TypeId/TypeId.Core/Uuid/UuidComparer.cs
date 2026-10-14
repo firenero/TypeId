@@ -6,23 +6,12 @@
 internal class UuidComparer : IComparer<Guid>
 {
     public static UuidComparer Instance { get; } = new();
-    
+
     public int Compare(Guid x, Guid y)
     {
-        const int bytesCount = 16;
-        Span<byte> xBytes = stackalloc byte[bytesCount];
-        x.TryWriteBytes(xBytes, bigEndian: true, out _);
+        Base32.GetBigEndianBits(x, out var xHi, out var xLo);
+        Base32.GetBigEndianBits(y, out var yHi, out var yLo);
 
-        Span<byte> yBytes = stackalloc byte[bytesCount];
-        y.TryWriteBytes(yBytes, bigEndian: true, out _);
-
-        for (var i = 0; i < bytesCount; i++)
-        {
-            var compareResult = xBytes[i].CompareTo(yBytes[i]);
-            if (compareResult != 0)
-                return compareResult;
-        }
-
-        return 0;
+        return xHi != yHi ? xHi.CompareTo(yHi) : xLo.CompareTo(yLo);
     }
 }
