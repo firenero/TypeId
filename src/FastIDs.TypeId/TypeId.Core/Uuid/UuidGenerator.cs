@@ -4,13 +4,6 @@ using System.Security.Cryptography;
 
 namespace FastIDs.TypeId.Uuid;
 
-#if NET10_0_OR_GREATER
-internal static class UuidGenerator
-{
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Guid New() => Guid.CreateVersion7();
-}
-#else
 
 // The UUIDv7 implementation is extracted from https://github.com/mareek/UUIDNext to prevent transient dependency.
 // TypeID doesn't require any UUID implementations except UUIDv7.
@@ -20,6 +13,11 @@ internal sealed class UuidGenerator
 {
     private const int SequenceBitSize = 7;
     private const int SequenceMaxValue = (1 << SequenceBitSize) - 1;
+    private const int RandomBufferSize = 256;
+
+    // Per-thread buffer of CSPRNG output. Amortizes the cost of RandomNumberGenerator.Fill (a syscall-backed call) over many IDs.
+    [ThreadStatic] private static byte[]? _randomBuffer;
+    [ThreadStatic] private static int _randomBufferPos;
     
     private long _lastUsedTimestamp;
     private long _timestampOffset;
@@ -36,7 +34,7 @@ internal sealed class UuidGenerator
         var timestamp = GetCurrentUnixMilliseconds();
         SetSequence(idBytes[6..8], ref timestamp);
         SetTimestamp(buffer[..8], timestamp); // Using full buffer because we need to account for two zero-bytes in front.
-        RandomNumberGenerator.Fill(idBytes[8..]);
+        FillRandom(idBytes[8..]);
 
         return GuidConverter.CreateGuidFromBigEndianBytes(idBytes);
     }
@@ -117,10 +115,24 @@ internal sealed class UuidGenerator
     {
         // following section 6.2 on "Fixed-Length Dedicated Counter Seeding", the initial value of the sequence is randomized
         Span<byte> buffer = stackalloc byte[2];
-        RandomNumberGenerator.Fill(buffer);
+        FillRandom(buffer);
         // Setting the highest bit to 0 mitigate the risk of a sequence overflow (see section 6.2)
         buffer[0] &= 0b0000_0111;
         return BinaryPrimitives.ReadUInt16BigEndian(buffer);
     }
+
+    private static void FillRandom(Span<byte> destination)
+    {
+        var buffer = _randomBuffer;
+        var pos = _randomBufferPos;
+        if (buffer is null || pos + destination.Length > RandomBufferSize)
+        {
+            buffer = _randomBuffer ??= new byte[RandomBufferSize];
+            RandomNumberGenerator.Fill(buffer);
+            pos = 0;
+        }
+
+        buffer.AsSpan(pos, destination.Length).CopyTo(destination);
+        _randomBufferPos = pos + destination.Length;
+    }
 }
-#endif

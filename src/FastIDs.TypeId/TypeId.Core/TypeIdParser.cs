@@ -1,7 +1,5 @@
 using System.Buffers;
-using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 
 namespace FastIDs.TypeId;
@@ -9,20 +7,6 @@ namespace FastIDs.TypeId;
 internal static class TypeIdParser
 {
     private static readonly SearchValues<char> Alphabet = SearchValues.Create("_abcdefghijklmnopqrstuvwxyz");
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void FormatUuidBytes(Span<byte> bytes)
-    {
-        // Optimized version of:
-        // (bytes[0], bytes[3]) = (bytes[3], bytes[0]);
-        // (bytes[1], bytes[2]) = (bytes[2], bytes[1]);
-        var num = Unsafe.ReadUnaligned<uint>(ref MemoryMarshal.GetReference(bytes[..4]));
-        num = BinaryPrimitives.ReverseEndianness(num);
-        Unsafe.WriteUnaligned(ref MemoryMarshal.GetReference(bytes[..4]), num);
-        
-        // Using permutations here because benchmarks show that they are faster for uint16.
-        (bytes[4], bytes[5]) = (bytes[5], bytes[4]);
-        (bytes[6], bytes[7]) = (bytes[7], bytes[6]);
-    }
 
     public static TypeError ValidateType(ReadOnlySpan<char> type)
     {
