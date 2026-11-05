@@ -235,3 +235,27 @@ builder.Services.AddSwaggerGen(c =>
     c.MapType(typeof(TypeIdDecoded), () => new OpenApiSchema { Type = "string", Example = new OpenApiString("prefix_01h93ech7jf5ktdwg6ye383x34") });
 });
 ```
+
+
+### Entity Framework Core
+
+The [FastIDs.TypeId.EntityFrameworkCore](https://www.nuget.org/packages/FastIDs.TypeId.EntityFrameworkCore) NuGet package (EF Core 8+) maps `TypeId` and `TypeIdDecoded` properties to the database.
+
+Call `ConfigureForTypeId` once to map every `TypeId` / `TypeIdDecoded` property of the model to a string column (max length 90, non-unicode),
+and optionally let EF generate new IDs on the client:
+
+```cs
+protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    => configurationBuilder.ConfigureForTypeId();
+
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+    => modelBuilder.Entity<User>().Property(u => u.Id).HasTypeIdGenerator("user");
+```
+
+If a column holds IDs of a single type, you can store only the UUID part in a native UUID column:
+
+```cs
+modelBuilder.Entity<Order>().Property(o => o.Id).HasTypeIdGuidConversion("order").HasTypeIdGenerator("order");
+```
+
+See the [package readme](src/FastIDs.TypeId.EntityFrameworkCore/TypeId.EntityFrameworkCore/README.md) for details and trade-offs.

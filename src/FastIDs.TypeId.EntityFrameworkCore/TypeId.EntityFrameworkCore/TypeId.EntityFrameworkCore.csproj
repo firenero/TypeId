@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <WarningsAsErrors>Nullable</WarningsAsErrors>
+        <RootNamespace>FastIDs.TypeId.EntityFrameworkCore</RootNamespace>
+
+        <PackageId>FastIDs.TypeId.EntityFrameworkCore</PackageId>
+        <Description>Entity Framework Core integration (value converters, conventions and value generators) for FastIDs.TypeId</Description>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageTags>guid,uuid,id,typeid,type-id,uuid7,identifiers,entityframework,efcore,ef-core</PackageTags>
+        <PackageProjectUrl>https://github.com/firenero/TypeId</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Authors>Mykhailo Matviiv</Authors>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <Copyright>Copyright (c) Mykhailo Matviiv 2023.</Copyright>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <AnalysisModePerformance>All</AnalysisModePerformance>
+        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FastIDs.TypeId" Version="1.2.1" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.11" />
+      <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="MinVer" Version="4.3.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+    </ItemGroup>
+
+    <PropertyGroup>
+        <MinVerTagPrefix>typeid-efcore-v</MinVerTagPrefix>
+        <MinVerIgnoreHeight>true</MinVerIgnoreHeight>
+    </PropertyGroup>
+
+</Project>
