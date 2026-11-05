@@ -278,7 +278,7 @@ public readonly struct TypeId : IEquatable<TypeId>, ISpanFormattable, IUtf8SpanF
 
     public override bool Equals(object? obj) => obj is TypeId other && Equals(other);
 
-    public override int GetHashCode() => _str.GetHashCode();
+    public override int GetHashCode() => _str?.GetHashCode() ?? 0;
 
     public static bool operator ==(TypeId left, TypeId right) => left.Equals(right);
 
