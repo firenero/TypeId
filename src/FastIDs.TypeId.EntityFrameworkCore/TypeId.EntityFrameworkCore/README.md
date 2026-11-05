@@ -56,8 +56,18 @@ modelBuilder.Entity<Order>().Property(o => o.Id)
     .HasTypeIdGenerator("order");
 ```
 
-You can also use the converters directly: `TypeIdToStringConverter`, `TypeIdDecodedToStringConverter`,
-`TypeIdToGuidConverter`, `TypeIdDecodedToGuidConverter`.
+You can also configure a property with the converters directly: `TypeIdToStringConverter`, `TypeIdDecodedToStringConverter`,
+`TypeIdToGuidConverter`, `TypeIdDecodedToGuidConverter`. Always pair them with the matching comparer
+(`TypeIdValueComparer` / `TypeIdDecodedValueComparer`):
+
+```csharp
+modelBuilder.Entity<User>().Property(u => u.Id)
+    .HasConversion<TypeIdToStringConverter, TypeIdValueComparer>();
+```
+
+EF Core hashes `default` values (for example a foreign key that isn't populated yet while an entity graph is attached),
+and `default(TypeId).GetHashCode()` throws. `TypeIdValueComparer` handles it. `ConfigureForTypeId` and
+`HasTypeIdGuidConversion` register the comparers for you.
 
 ### Which one to use?
 
@@ -68,3 +78,11 @@ You can also use the converters directly: `TypeIdToStringConverter`, `TypeIdDeco
   SQL Server sorts `uniqueidentifier` values in a different byte order, so IDs are not sorted by creation time there.
 * String columns are compared using the database collation. If you sort or range-query by a string TypeId column,
   use a binary/ordinal collation to get ordinal ordering consistent with `TypeId.CompareTo`.
+
+## Limitations
+
+* **Compiled models** (`dotnet ef dbcontext optimize`) and the EF Core features built on them (precompiled queries, Native AOT)
+  are not supported yet. The compiled model generator can't emit C# literals for the `TypeId` / `TypeIdDecoded` structs, and
+  per-property settings that take the TypeId type (`HasTypeIdGenerator`, `HasTypeIdGuidConversion`) can't be expressed
+  by type, which the generator requires.
+* A `GUID` column doesn't store the TypeId type, so every value written must have the type configured in the mapping.

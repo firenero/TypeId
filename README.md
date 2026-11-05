@@ -258,4 +258,4 @@ If a column holds IDs of a single type, you can store only the UUID part in a na
 modelBuilder.Entity<Order>().Property(o => o.Id).HasTypeIdGuidConversion("order").HasTypeIdGenerator("order");
 ```
 
-See the [package readme](src/FastIDs.TypeId.EntityFrameworkCore/TypeId.EntityFrameworkCore/README.md) for details and trade-offs.
+See the [package readme](https://github.com/firenero/TypeId/blob/main/src/FastIDs.TypeId.EntityFrameworkCore/TypeId.EntityFrameworkCore/README.md) for details and trade-offs.
