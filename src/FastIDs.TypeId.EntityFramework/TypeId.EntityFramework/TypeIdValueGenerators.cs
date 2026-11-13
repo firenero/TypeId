@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace FastIDs.TypeId.EntityFrameworkCore;
+namespace FastIDs.TypeId.EntityFramework;
 
 /// <summary>
 /// Generates new <see cref="TypeId"/> values of a fixed type on the client side.

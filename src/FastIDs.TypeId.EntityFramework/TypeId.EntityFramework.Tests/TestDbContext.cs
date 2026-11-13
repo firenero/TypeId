@@ -1,7 +1,7 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
-namespace FastIDs.TypeId.EntityFrameworkCore.Tests;
+namespace FastIDs.TypeId.EntityFramework.Tests;
 
 /// <summary>User stored with the default (string) mapping; <see cref="TypeId"/> key generated on the client.</summary>
 public class User

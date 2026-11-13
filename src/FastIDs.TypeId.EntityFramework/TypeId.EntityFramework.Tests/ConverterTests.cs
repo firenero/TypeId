@@ -1,6 +1,6 @@
 using FluentAssertions;
 
-namespace FastIDs.TypeId.EntityFrameworkCore.Tests;
+namespace FastIDs.TypeId.EntityFramework.Tests;
 
 [TestFixture]
 public class ConverterTests

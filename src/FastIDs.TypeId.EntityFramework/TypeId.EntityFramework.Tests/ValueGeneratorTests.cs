@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 
-namespace FastIDs.TypeId.EntityFrameworkCore.Tests;
+namespace FastIDs.TypeId.EntityFramework.Tests;
 
 [TestFixture]
 public class ValueGeneratorTests

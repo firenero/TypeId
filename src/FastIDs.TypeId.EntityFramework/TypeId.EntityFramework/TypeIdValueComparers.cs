@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace FastIDs.TypeId.EntityFrameworkCore;
+namespace FastIDs.TypeId.EntityFramework;
 
 /// <summary>
 /// Compares <see cref="TypeId"/> values for EF Core change tracking, identity maps and key lookups.

@@ -1,4 +1,4 @@
-# FastIDs.TypeId.EntityFrameworkCore
+# FastIDs.TypeId.EntityFramework
 
 [Entity Framework Core](https://learn.microsoft.com/ef/core/) integration for [FastIDs.TypeId](https://www.nuget.org/packages/FastIDs.TypeId):
 value converters, a model convention and client-side value generators for `TypeId` and `TypeIdDecoded`.
@@ -8,7 +8,7 @@ Requires EF Core 8.0 or later.
 ## Installation
 
 ```
-dotnet add package FastIDs.TypeId.EntityFrameworkCore
+dotnet add package FastIDs.TypeId.EntityFramework
 ```
 
 ## Quick start
@@ -18,7 +18,7 @@ mapped to a `varchar(90)`-like column automatically:
 
 ```csharp
 using FastIDs.TypeId;
-using FastIDs.TypeId.EntityFrameworkCore;
+using FastIDs.TypeId.EntityFramework;
 
 public class MyContext : DbContext
 {

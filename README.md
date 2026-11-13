@@ -239,7 +239,7 @@ builder.Services.AddSwaggerGen(c =>
 
 ### Entity Framework Core
 
-The [FastIDs.TypeId.EntityFrameworkCore](https://www.nuget.org/packages/FastIDs.TypeId.EntityFrameworkCore) NuGet package (EF Core 8+) maps `TypeId` and `TypeIdDecoded` properties to the database.
+The [FastIDs.TypeId.EntityFramework](https://www.nuget.org/packages/FastIDs.TypeId.EntityFramework) NuGet package (EF Core 8+) maps `TypeId` and `TypeIdDecoded` properties to the database.
 
 Call `ConfigureForTypeId` once to map every `TypeId` / `TypeIdDecoded` property of the model to a string column (max length 90, non-unicode),
 and optionally let EF generate new IDs on the client:
@@ -258,4 +258,4 @@ If a column holds IDs of a single type, you can store only the UUID part in a na
 modelBuilder.Entity<Order>().Property(o => o.Id).HasTypeIdGuidConversion("order").HasTypeIdGenerator("order");
 ```
 
-See the [package readme](https://github.com/firenero/TypeId/blob/main/src/FastIDs.TypeId.EntityFrameworkCore/TypeId.EntityFrameworkCore/README.md) for details and trade-offs.
+See the [package readme](https://github.com/firenero/TypeId/blob/main/src/FastIDs.TypeId.EntityFramework/TypeId.EntityFramework/README.md) for details and trade-offs.

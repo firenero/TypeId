@@ -2,7 +2,7 @@ using FluentAssertions;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
-namespace FastIDs.TypeId.EntityFrameworkCore.Tests;
+namespace FastIDs.TypeId.EntityFramework.Tests;
 
 [TestFixture]
 public class DatabaseRoundTripTests

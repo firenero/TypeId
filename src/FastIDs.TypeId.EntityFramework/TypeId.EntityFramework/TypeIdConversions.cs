@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace FastIDs.TypeId.EntityFrameworkCore;
+namespace FastIDs.TypeId.EntityFramework;
 
 /// <summary>
 /// Shared helpers used by the converters and value generators.

@@ -5,9 +5,9 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <WarningsAsErrors>Nullable</WarningsAsErrors>
-        <RootNamespace>FastIDs.TypeId.EntityFrameworkCore</RootNamespace>
+        <RootNamespace>FastIDs.TypeId.EntityFramework</RootNamespace>
 
-        <PackageId>FastIDs.TypeId.EntityFrameworkCore</PackageId>
+        <PackageId>FastIDs.TypeId.EntityFramework</PackageId>
         <Description>Entity Framework Core integration (value converters, conventions and value generators) for FastIDs.TypeId</Description>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <PackageTags>guid,uuid,id,typeid,type-id,uuid7,identifiers,entityframework,efcore,ef-core</PackageTags>

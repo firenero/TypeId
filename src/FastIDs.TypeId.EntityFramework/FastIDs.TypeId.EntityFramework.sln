@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeId.EntityFrameworkCore", "TypeId.EntityFrameworkCore\TypeId.EntityFrameworkCore.csproj", "{2AEFE760-DFAF-4B72-B3A0-DF93F3DEA204}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeId.EntityFramework", "TypeId.EntityFramework\TypeId.EntityFramework.csproj", "{2AEFE760-DFAF-4B72-B3A0-DF93F3DEA204}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeId.EntityFrameworkCore.Tests", "TypeId.EntityFrameworkCore.Tests\TypeId.EntityFrameworkCore.Tests.csproj", "{C08D7BC2-82AD-400D-9783-1B1166F6825E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeId.EntityFramework.Tests", "TypeId.EntityFramework.Tests\TypeId.EntityFramework.Tests.csproj", "{C08D7BC2-82AD-400D-9783-1B1166F6825E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

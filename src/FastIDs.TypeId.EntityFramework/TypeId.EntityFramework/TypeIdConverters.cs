@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace FastIDs.TypeId.EntityFrameworkCore;
+namespace FastIDs.TypeId.EntityFramework;
 
 /// <summary>
 /// Converts <see cref="TypeId"/> to and from its canonical string representation (<c>user_01h455vb4pex5vsknk084sn02q</c>).

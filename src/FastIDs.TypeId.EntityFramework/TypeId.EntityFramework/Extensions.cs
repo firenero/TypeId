@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FastIDs.TypeId.EntityFrameworkCore;
+namespace FastIDs.TypeId.EntityFramework;
 
 /// <summary>
 /// Extension methods for configuring TypeId in Entity Framework Core.
