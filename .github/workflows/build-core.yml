@@ -36,7 +36,18 @@ jobs:
         run: dotnet build --no-restore --configuration Release
       - name: Test
         run: dotnet test --no-restore --no-build --configuration Release
-        
+      # Pack the binaries that were just built and tested (SDK 10 leg builds all target frameworks)
+      - name: Pack
+        if: startsWith(github.ref, 'refs/tags/') && matrix.dotnet-version == 10
+        run: dotnet pack --no-build -c Release ./TypeId.Core/TypeId.Core.csproj -o ./artifacts
+      - name: Upload package
+        if: startsWith(github.ref, 'refs/tags/') && matrix.dotnet-version == 10
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: src/FastIDs.TypeId/artifacts/
+          if-no-files-found: error
+
   native-aot:
     runs-on: ubuntu-latest
     strategy:
@@ -68,21 +79,16 @@ jobs:
     permissions:
       contents: read
       id-token: write # required for NuGet trusted publishing (OIDC)
-    defaults:
-      run:
-        working-directory: ./src/FastIDs.TypeId
     steps:
-      - uses: actions/checkout@v3
+      - name: Download package
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: ./artifacts
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10
-      - name: Restore dependencies
-        run: dotnet restore
-      - name: Build
-        run: dotnet build --no-restore --configuration Release ./TypeId.Core/TypeId.Core.csproj
-      - name: Pack
-        run: dotnet pack --no-build -c Release ./TypeId.Core -o ./artifacts
       - name: NuGet login (trusted publishing)
         id: login
         uses: NuGet/login@v1
